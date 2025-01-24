@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/gif"
@@ -18,6 +19,7 @@ var (
 		"Set Width 1200",
 		"Set Height 600",
 	}
+	mt = sync.Mutex{}
 )
 
 func main() {
@@ -32,29 +34,33 @@ func main() {
 }
 
 func GetTerminalGift(c *gin.Context) {
+	// TODO check if /output does not exist and create if not
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
 		fmt.Printf("Error running command: %v\n", err)
 		return // err
 	}
-	fmt.Printf("cmdInput %+2v %T \n", cmdInput, cmdInput)
+	fmt.Printf("cmdInput %+2v %T \n", cmdInput[0], cmdInput)
 	cmds = append(cmds, cmdInput...)
-	fmt.Printf("cmdInput %+2v %T \n", cmds, cmds)
 
-	if err := gif.WriteTape(cmds); err != nil {
-		fmt.Printf("Error writing to file: %v\n", err)
-		return
-	}
+	func() {
+		mt.Lock()
+		if err := gif.WriteTape(cmds); err != nil {
+			fmt.Printf("Error writing to file: %v\n", err)
+			return
+		}
 
-	if err := gif.ExecVHS(); err != nil {
-		fmt.Printf("Error running command: %v\n", err)
-		return
-	}
+		if err := gif.ExecVHS(); err != nil {
+			fmt.Printf("Error running command: %v\n", err)
+			return
+		}
+		mt.Unlock()
+	}()
 
 	// exec.Command("mv", "demo.gif", "output/", gif.FileName).Run()
-	// exec.Command("rm", "-f", gif.FileName).Run()
 
-	fmt.Println("Command executed successfully!")
 	c.File(gif.GifFileName)
+
+	// exec.Command("rm", "-f", gif.GifFileName).Run()
 }

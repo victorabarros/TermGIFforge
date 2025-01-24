@@ -26,8 +26,8 @@ func ExecVHS() error {
 	)
 
 	// Set the output to the current process's stdout and stderr
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 
 	// Run the command
 	if err := cmd.Run(); err != nil {
@@ -53,6 +53,5 @@ func WriteTape(cmds []string) error {
 		}
 	}
 
-	fmt.Printf("Commands written to %s successfully!\n", FileName)
 	return nil
 }
