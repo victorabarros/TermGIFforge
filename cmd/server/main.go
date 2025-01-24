@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
 
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	port = "9001"
+	port = "80"
 
 	cmds = []string{
 		fmt.Sprintf("Output %s", gif.GifFileName),
@@ -26,14 +27,43 @@ func main() {
 	r := gin.Default()
 
 	rpcGroup := r.Group("/api/v1")
-	rpcGroup.GET("/gif", GetTerminalGift)
+	rpcGroup.GET("/gif", GetTerminalGIF)
+	rpcGroup.GET("/mock", GetMockTerminalGIF)
 
+	fmt.Println("Starting app in port", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		fmt.Errorf("%+2v/n", err)
 	}
 }
 
-func GetTerminalGift(c *gin.Context) {
+func GetMockTerminalGIF(c *gin.Context) {
+	c.File(gif.GifFileName)
+}
+
+func GetTerminalGIF(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	// Simulate a long-running process
+	done := make(chan bool)
+	go func() {
+		defer close(done)
+		getTerminalGIF(c)
+		log.Println("shouldnt show if canceled")
+	}()
+
+	select {
+	case <-ctx.Done(): // If client cancels the request
+		log.Println("Request canceled by the client")
+		c.JSON(http.StatusRequestTimeout, gin.H{"error": "request canceled by client"})
+		return
+	case <-done: // If the process completes normally
+		// c.JSON(http.StatusOK, gin.H{"status": "process completed successfully"})
+		return
+	}
+
+}
+
+func getTerminalGIF(c *gin.Context) {
 	// TODO check if /output does not exist and create if not
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
@@ -41,7 +71,7 @@ func GetTerminalGift(c *gin.Context) {
 		fmt.Printf("Error running command: %v\n", err)
 		return // err
 	}
-	fmt.Printf("cmdInput %+2v %T \n", cmdInput[0], cmdInput)
+	fmt.Printf("cmdInput %+2v \n", cmdInput[0])
 	cmds = append(cmds, cmdInput...)
 
 	func() {
