@@ -1,0 +1,15 @@
+meta {
+  name: gif
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:9001/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 100ms","Type \"ls -a\"","Sleep 100ms","Enter","Sleep 1s"]
+  body: none
+  auth: none
+}
+
+params:query {
+  commands: ["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 100ms","Type \"ls -a\"","Sleep 100ms","Enter","Sleep 1s"]
+}

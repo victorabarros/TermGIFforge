@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	FileName = "output/demo.tape"
+	FileName    = "output/demo.tape"
+	GifFileName = "output/demo.gif"
 )
 
 func ExecVHS() error {
