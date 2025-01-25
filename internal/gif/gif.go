@@ -5,33 +5,14 @@ import (
 	"os/exec"
 )
 
-const (
-	FileName    = "output/demo.tape"
-	GifFileName = "output/demo.gif"
-)
-
-func ExecVHS() error {
-	cmd := exec.Command("vhs", FileName)
-
-	// Set the output to the current process's stdout and stderr
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
-
-	// Run the command
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func WriteTape(cmds []string) error {
+func WriteTape(cmds []string, filePath string) error {
 	// Remove old file
-	if err := exec.Command("rm", "-f", FileName).Run(); err != nil {
+	if err := exec.Command("rm", "-f", filePath).Run(); err != nil {
 		return err
 	}
 
 	// Create or overwrite the file
-	file, err := os.Create(FileName)
+	file, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
@@ -45,5 +26,19 @@ func WriteTape(cmds []string) error {
 		}
 	}
 
+	return nil
+}
+
+func ExecVHS(filePath string) error {
+	cmd := exec.Command("vhs", filePath)
+
+	// Set the output to the current process's stdout and stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+
+	// Run the command
+	if err := cmd.Run(); err != nil {
+		return err
+	}
 	return nil
 }
