@@ -8,14 +8,24 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/gif"
 )
 
+type GIFStatus string
+
 var (
+	GIFStatuses = struct {
+		Fail       GIFStatus
+		Processing GIFStatus
+		Ready      GIFStatus
+	}{
+		Fail:       GIFStatus("Fail"),
+		Processing: GIFStatus("Processing"),
+		Ready:      GIFStatus("Ready"),
+	}
 	port = "80"
 
 	setCmds = []string{
@@ -25,10 +35,8 @@ var (
 		"Set Height 400",
 	}
 
-	// for now, DB is a map inputHash
-	database = map[string]struct{}{}
-
-	mt = sync.Mutex{}
+	// for now, cache is a map inputHash
+	cache = map[string]GIFStatus{}
 )
 
 func main() {
@@ -54,9 +62,17 @@ func GetTerminalGIF(c *gin.Context) {
 
 	outTapePath := fmt.Sprintf("output/%s.tape", inputHash)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
-	if _, ok := database[inputHash]; ok {
-		c.File(outGifPath)
-		return
+	if status, ok := cache[inputHash]; ok {
+		if status == GIFStatuses.Fail {
+			// do nothing
+		}
+		if status == GIFStatuses.Processing {
+			// wait
+		}
+		if status == GIFStatuses.Ready {
+			c.File(outGifPath)
+			return
+		}
 	}
 
 	cmdInput := []string{}
@@ -69,23 +85,24 @@ func GetTerminalGIF(c *gin.Context) {
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	mt.Lock()
-	defer mt.Unlock()
+	cache[inputHash] = GIFStatuses.Processing
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		log.Printf("Error writing to file: %+2v\n", err)
+		cache[inputHash] = GIFStatuses.Fail
 		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
 		return
 	}
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		log.Printf("Error running command: %+2v\n", err)
+		cache[inputHash] = GIFStatuses.Fail
 		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
 		return
 	}
 
 	// exec.Command("mv", "demo.gif", "output/", gif.FileName).Run()
-	database[inputHash] = struct{}{}
+	cache[inputHash] = GIFStatuses.Ready
 	c.File(outGifPath)
 
 	exec.Command("rm", "-f", outTapePath).Run()
