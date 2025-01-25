@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -16,9 +17,10 @@ var (
 
 	cmds = []string{
 		fmt.Sprintf("Output %s", gif.GifFileName),
-		"Set FontSize 26",
-		"Set Width 1200",
-		"Set Height 600",
+		"Set WindowBar Colorful",
+		"Set FontSize 15",
+		"Set Width 600",
+		"Set Height 300",
 	}
 	mt = sync.Mutex{}
 )
@@ -75,5 +77,6 @@ func getTerminalGIF(c *gin.Context) {
 
 	c.File(gif.GifFileName)
 
-	// exec.Command("rm", "-f", gif.GifFileName).Run()
+	exec.Command("rm", "-f", gif.GifFileName).Run()
+	exec.Command("rm", "-f", gif.FileName).Run()
 }
