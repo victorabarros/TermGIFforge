@@ -1,6 +1,7 @@
 # Terminal GIFs API 📼
 
 Use this API to present creative ways of your software commands.
+Live in **http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]**.
 
 ## how to run w/ docker 🐳
 
