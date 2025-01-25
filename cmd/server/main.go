@@ -53,21 +53,21 @@ func getTerminalGIF(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
-		log.Println("Error running command: %v\n", err)
+		log.Printf("Error running command: %v\n", err)
 		return // err
 	}
-	log.Println("cmdInput %+2v \n", cmdInput[0])
+
 	cmds = append(cmds, cmdInput...)
 
 	func() {
 		mt.Lock()
 		if err := gif.WriteTape(cmds); err != nil {
-			log.Println("Error writing to file: %v\n", err)
+			log.Printf("Error writing to file: %v\n", err)
 			return
 		}
 
 		if err := gif.ExecVHS(); err != nil {
-			log.Println("Error running command: %v\n", err)
+			log.Printf("Error running command: %v\n", err)
 			return
 		}
 		mt.Unlock()
@@ -77,6 +77,5 @@ func getTerminalGIF(c *gin.Context) {
 
 	c.File(gif.GifFileName)
 
-	exec.Command("rm", "-f", gif.GifFileName).Run()
 	exec.Command("rm", "-f", gif.FileName).Run()
 }

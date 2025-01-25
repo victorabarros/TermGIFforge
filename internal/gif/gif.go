@@ -1,7 +1,6 @@
 package gif
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 )
@@ -12,18 +11,7 @@ const (
 )
 
 func ExecVHS() error {
-	// Get the current working directory
-	workingDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	// Prepare the docker command
-	cmd := exec.Command(
-		"docker", "run", "--rm",
-		"-v", fmt.Sprintf("%s:/vhs", workingDir),
-		"ghcr.io/charmbracelet/vhs", FileName,
-	)
+	cmd := exec.Command("vhs", FileName)
 
 	// Set the output to the current process's stdout and stderr
 	// cmd.Stdout = os.Stdout
