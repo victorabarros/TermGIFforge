@@ -15,12 +15,12 @@ import (
 var (
 	port = "80"
 
-	cmds = []string{
+	setCmds = []string{
 		fmt.Sprintf("Output %s", gif.GifFileName),
 		"Set WindowBar Colorful",
-		"Set FontSize 15",
-		"Set Width 600",
-		"Set Height 300",
+		"Set FontSize 12",
+		"Set Width 800",
+		"Set Height 400",
 	}
 	mt = sync.Mutex{}
 )
@@ -53,25 +53,27 @@ func getTerminalGIF(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
-		log.Printf("Error running command: %v\n", err)
-		return // err
+		log.Printf("Error trying to serialize object: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
+		return
 	}
 
-	cmds = append(cmds, cmdInput...)
+	cmds := append(setCmds, cmdInput...)
 
-	func() {
-		mt.Lock()
-		if err := gif.WriteTape(cmds); err != nil {
-			log.Printf("Error writing to file: %v\n", err)
-			return
-		}
+	mt.Lock()
+	defer mt.Unlock()
 
-		if err := gif.ExecVHS(); err != nil {
-			log.Printf("Error running command: %v\n", err)
-			return
-		}
-		mt.Unlock()
-	}()
+	if err := gif.WriteTape(cmds); err != nil {
+		log.Printf("Error writing to file: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
+		return
+	}
+
+	if err := gif.ExecVHS(); err != nil {
+		log.Printf("Error running command: %v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
+		return
+	}
 
 	// exec.Command("mv", "demo.gif", "output/", gif.FileName).Run()
 

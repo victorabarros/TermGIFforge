@@ -25,6 +25,10 @@ func ExecVHS() error {
 }
 
 func WriteTape(cmds []string) error {
+	// Remove old file
+	if err := exec.Command("rm", "-f", FileName).Run(); err != nil {
+		return err
+	}
 
 	// Create or overwrite the file
 	file, err := os.Create(FileName)
