@@ -1,12 +1,11 @@
-Output demo.gif
-Set FontSize 26
-Set Width 1200
-Set Height 600
+Output output/demo.gif
+Set WindowBar Colorful
+Set FontSize 15
+Set Width 600
+Set Height 300
 Type "echo 'Welcome to VHS!'"
+Enter
+Type "ls"
 Sleep 100ms
 Enter
-Sleep 100ms
-Type "ls -a"
-Sleep 100ms
-Enter
-Sleep 1s
+Sleep 2s
