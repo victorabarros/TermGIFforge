@@ -39,3 +39,15 @@ Write instructions to `./demo.tape`, then run `docker run --rm -v $PWD:/vhs -w /
 - https://github.com/ryo-ma/github-profile-trophy
 
 ## [Licence](./LICENSE)
+
+<!--
+TODO
+
+- cache previous gifs
+  - hash query to index it
+  - store gifs on S3; or store locally and create a service to expire GIFs longers when directory is full?
+  - persist hash -> GIF file path on redis (maybe better sqlite, because no needed of more service and it persist in disk)
+- understand why execution takes longer w/ time; temporary work around; reset aplication every X minutes
+- create homepage to introduce project
+
+-->
