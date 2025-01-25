@@ -44,6 +44,7 @@ Write instructions to `./demo.tape`, then run `docker run --rm -v $PWD:/vhs -w /
 <!--
 TODO
 
+- backup https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb
 - cache previous gifs
   - hash query to index it
   - store gifs on S3; or store locally and create a service to expire GIFs longers when directory is full?
