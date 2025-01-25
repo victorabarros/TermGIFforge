@@ -7,8 +7,7 @@ BUILD_FILE=output/terminalGif
 # build api
 build-api:
 	@echo "Building ${APP_NAME} to ./terminalGif"
-	@docker rm -f ${APP_NAME}
-	@docker run -it \
+	@docker run --rm -it \
 		-v ${PWD}:${API_APP_DIR} -w ${API_APP_DIR} \
 		--name ${APP_NAME} ${DOCKER_IMAGE} sh -c \
 		"go build -o ${BUILD_FILE} cmd/server/main.go"
