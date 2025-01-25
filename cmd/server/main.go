@@ -67,7 +67,8 @@ func GetTerminalGIF(c *gin.Context) {
 			// do nothing
 		}
 		if status == GIFStatuses.Processing {
-			// wait
+			c.JSON(http.StatusAccepted, gin.H{"message": "wait"})
+			return
 		}
 		if status == GIFStatuses.Ready {
 			c.File(outGifPath)
