@@ -32,7 +32,7 @@ func main() {
 
 	fmt.Println("Starting app in port", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		fmt.Errorf("%+2v/n", err)
+		fmt.Printf("%+2v/n", err)
 	}
 }
 
@@ -41,26 +41,9 @@ func GetMockTerminalGIF(c *gin.Context) {
 }
 
 func GetTerminalGIF(c *gin.Context) {
-	ctx := c.Request.Context()
+	// ctx := c.Request.Context()
 
-	// Simulate a long-running process
-	done := make(chan bool)
-	go func() {
-		defer close(done)
-		getTerminalGIF(c)
-		log.Println("shouldnt show if canceled")
-	}()
-
-	select {
-	case <-ctx.Done(): // If client cancels the request
-		log.Println("Request canceled by the client")
-		c.JSON(http.StatusRequestTimeout, gin.H{"error": "request canceled by client"})
-		return
-	case <-done: // If the process completes normally
-		// c.JSON(http.StatusOK, gin.H{"status": "process completed successfully"})
-		return
-	}
-
+	getTerminalGIF(c)
 }
 
 func getTerminalGIF(c *gin.Context) {
@@ -68,21 +51,21 @@ func getTerminalGIF(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
-		fmt.Printf("Error running command: %v\n", err)
+		log.Println("Error running command: %v\n", err)
 		return // err
 	}
-	fmt.Printf("cmdInput %+2v \n", cmdInput[0])
+	log.Println("cmdInput %+2v \n", cmdInput[0])
 	cmds = append(cmds, cmdInput...)
 
 	func() {
 		mt.Lock()
 		if err := gif.WriteTape(cmds); err != nil {
-			fmt.Printf("Error writing to file: %v\n", err)
+			log.Println("Error writing to file: %v\n", err)
 			return
 		}
 
 		if err := gif.ExecVHS(); err != nil {
-			fmt.Printf("Error running command: %v\n", err)
+			log.Println("Error running command: %v\n", err)
 			return
 		}
 		mt.Unlock()
