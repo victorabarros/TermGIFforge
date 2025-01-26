@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,8 +8,8 @@ import (
 	"os/exec"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/gif"
+	"github.com/victorabarros/Terminal-GIFs-API/internal/id"
 )
 
 type GIFStatus string
@@ -106,7 +104,7 @@ func GetMockTerminalGIF(c *gin.Context) {
 
 func GetTerminalGIF(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
-	inputHash := newUUUID(cmdsInputStr)
+	inputHash := id.NewUUUIDAsString(cmdsInputStr)
 
 	outTapePath := fmt.Sprintf("output/%s.tape", inputHash)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
@@ -115,8 +113,7 @@ func GetTerminalGIF(c *gin.Context) {
 			// do nothing
 		}
 		if status == GIFStatuses.Processing {
-			// TODO use a GIF of a loop echoing "WAIT"
-			waitGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+			waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
 			c.File(waitGifPath)
 			// c.JSON(http.StatusAccepted, gin.H{"message": "wait"})
 			return
@@ -137,6 +134,7 @@ func GetTerminalGIF(c *gin.Context) {
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
+	// TODO process GIF async and return waiting.gif in the meanwhile
 	// TODO introduce mutex here to avoid race condition
 	cache[inputHash] = GIFStatuses.Processing
 
@@ -161,26 +159,13 @@ func GetTerminalGIF(c *gin.Context) {
 	cache[inputHash] = GIFStatuses.Ready
 	c.File(outGifPath)
 
+	// processGF()
+	// waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
+	// c.File(waitGifPath)
+
 	exec.Command("rm", "-f", outTapePath).Run()
 }
 
-// create deterministic UUUID
-func newUUUID(input string) string {
-	// calculate the MD5 hash of the
-	md5hash := md5.New()
-	_, err := md5hash.Write([]byte(input))
-	if err != nil {
-		log.Fatal(err)
-	}
+func processGIF() {
 
-	// convert the hash value to a string
-	md5string := hex.EncodeToString(md5hash.Sum(nil))
-
-	// generate the UUID from the
-	uuid, err := uuid.FromBytes([]byte(md5string[0:16]))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return uuid.String()
 }
