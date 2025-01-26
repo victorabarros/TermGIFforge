@@ -39,22 +39,28 @@ var (
 )
 
 func init() {
+	// TODO mkdir output/ if not exists
+	// TODO list GIFs from output/ and set on "cache"
+	// TODO if outGifPath already exist, don't need to redo
 	if err := waitingGIF(); err != nil {
 		log.Printf("creating waiting: %+2v\n", err)
 	}
 }
 
 func waitingGIF() error {
-	// TODO check if outGifPath already exist
+	// TODO add waiting to "cache"
+	msg := "Wait..."
 	cmdInput := []string{
 		// TODO increase font
 		"Set FontSize 15",
-		"Type \"while true; do\"", "Sleep 200ms", "Enter", "Sleep 200ms",
-		"Type \"   echo \"Wait...\"\"", "Sleep 200ms", "Enter", "Sleep 200ms",
-		"Type \"   sleep 1\"", "Sleep 200ms", "Enter", "Sleep 200ms",
-		"Type \"done\"", "Sleep 200ms", "Enter", "Sleep 200ms",
+		"Type \"PROCESSING_YOUR_GIF=true\"", "Enter", "Sleep 250ms",
+		"Type \"while $PROCESSING_YOUR_GIF; do\"", "Enter", "Sleep 250ms",
+		fmt.Sprintf("Type \"   echo \"%s\"\"", msg), "Enter", "Sleep 250ms",
+		"Type \"   sleep 1\"", "Enter", "Sleep 250ms",
+		"Type \"done\"", "Enter", "Sleep 250ms",
 		"Sleep 6s",
 	}
+	log.Println(fmt.Sprintf("Type \"   echo \"%s\"\"", "Enter", "Sleep 250ms", msg))
 
 	inputHash := "waiting"
 
