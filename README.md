@@ -1,7 +1,7 @@
 # Terminal GIFs API 📼
 
 Use this API to present creative ways of your software commands.
-Live in **http://terminalgifapi.com/api/v1/gif?commands=["cat README.md","Sleep 2s"]**.
+Live in `http://terminalgifapi.com/api/v1/gif?commands=["cat README.md","Sleep 2s"]`.
 
 # build image
 docker build --rm -t vhspoc .
@@ -76,6 +76,8 @@ TODO
   - persist hash -> GIF file path on redis (maybe better sqlite, because no needed of more service and it persist in disk)
 - create homepage to introduce project
 
+- use fancier namming prompt to improve name
+- use prompt to help w/ doc and post
 - write article/post
 - post on https://x.com/i/communities/1685641800449462272
 - HN

@@ -57,31 +57,13 @@ func waitingGIF() error {
 
 	inputHash := "waiting"
 
-	outTapePath := fmt.Sprintf("output/%s.tape", inputHash)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
 
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	// TODO introduce mutex here to avoid race condition
-	cache[inputHash] = GIFStatuses.Processing
+	go processGIF(inputHash, cmds)
 
-	if err := gif.WriteTape(cmds, outTapePath); err != nil {
-		// TODO introduce mutex here to avoid race condition
-		cache[inputHash] = GIFStatuses.Fail
-		return err
-	}
-
-	if err := gif.ExecVHS(outTapePath); err != nil {
-		// TODO introduce mutex here to avoid race condition
-		cache[inputHash] = GIFStatuses.Fail
-		return err
-	}
-
-	// TODO introduce mutex here to avoid race condition
-	cache[inputHash] = GIFStatuses.Ready
-
-	exec.Command("rm", "-f", outTapePath).Run()
 	return nil
 }
 
@@ -106,7 +88,6 @@ func GetTerminalGIF(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
 	inputHash := id.NewUUUIDAsString(cmdsInputStr)
 
-	outTapePath := fmt.Sprintf("output/%s.tape", inputHash)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
 	if status, ok := cache[inputHash]; ok {
 		if status == GIFStatuses.Fail {
@@ -134,38 +115,36 @@ func GetTerminalGIF(c *gin.Context) {
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	// TODO process GIF async and return waiting.gif in the meanwhile
+	go processGIF(inputHash, cmds)
+
+	waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
+	c.File(waitGifPath)
+
+}
+
+func processGIF(id string, cmds []string) error {
+	outTapePath := fmt.Sprintf("output/%s.tape", id)
 	// TODO introduce mutex here to avoid race condition
-	cache[inputHash] = GIFStatuses.Processing
+	cache[id] = GIFStatuses.Processing
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		log.Printf("Error writing to file: %+2v\n", err)
 		// TODO introduce mutex here to avoid race condition
-		cache[inputHash] = GIFStatuses.Fail
-		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
-		return
+		cache[id] = GIFStatuses.Fail
+		return err
 	}
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		log.Printf("Error running command: %+2v\n", err)
 		// TODO introduce mutex here to avoid race condition
-		cache[inputHash] = GIFStatuses.Fail
-		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
-		return
+		cache[id] = GIFStatuses.Fail
+		return err
 	}
 
-	// exec.Command("mv", "demo.gif", "output/", gif.FileName).Run()
 	// TODO introduce mutex here to avoid race condition
-	cache[inputHash] = GIFStatuses.Ready
-	c.File(outGifPath)
-
-	// processGF()
-	// waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
-	// c.File(waitGifPath)
+	cache[id] = GIFStatuses.Ready
 
 	exec.Command("rm", "-f", outTapePath).Run()
-}
 
-func processGIF() {
-
+	return nil
 }
