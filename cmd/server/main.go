@@ -54,7 +54,7 @@ func waitingGIF() error {
 		"Type \"   echo \"Wait...\"\"", "Sleep 200ms", "Enter", "Sleep 200ms",
 		"Type \"   sleep 1\"", "Sleep 200ms", "Enter", "Sleep 200ms",
 		"Type \"done\"", "Sleep 200ms", "Enter", "Sleep 200ms",
-		"Sleep 8s",
+		"Sleep 6s",
 	}
 
 	inputHash := "waiting"
@@ -65,18 +65,22 @@ func waitingGIF() error {
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
+	// TODO introduce mutex here to avoid race condition
 	cache[inputHash] = GIFStatuses.Processing
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
+		// TODO introduce mutex here to avoid race condition
 		cache[inputHash] = GIFStatuses.Fail
 		return err
 	}
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
+		// TODO introduce mutex here to avoid race condition
 		cache[inputHash] = GIFStatuses.Fail
 		return err
 	}
 
+	// TODO introduce mutex here to avoid race condition
 	cache[inputHash] = GIFStatuses.Ready
 
 	exec.Command("rm", "-f", outTapePath).Run()
@@ -133,10 +137,12 @@ func GetTerminalGIF(c *gin.Context) {
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
+	// TODO introduce mutex here to avoid race condition
 	cache[inputHash] = GIFStatuses.Processing
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		log.Printf("Error writing to file: %+2v\n", err)
+		// TODO introduce mutex here to avoid race condition
 		cache[inputHash] = GIFStatuses.Fail
 		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
 		return
@@ -144,12 +150,14 @@ func GetTerminalGIF(c *gin.Context) {
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		log.Printf("Error running command: %+2v\n", err)
+		// TODO introduce mutex here to avoid race condition
 		cache[inputHash] = GIFStatuses.Fail
 		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
 		return
 	}
 
 	// exec.Command("mv", "demo.gif", "output/", gif.FileName).Run()
+	// TODO introduce mutex here to avoid race condition
 	cache[inputHash] = GIFStatuses.Ready
 	c.File(outGifPath)
 
