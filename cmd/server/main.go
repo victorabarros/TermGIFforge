@@ -45,6 +45,7 @@ func init() {
 }
 
 func waitingGIF() error {
+	// TODO check if outGifPath already exist
 	cmdInput := []string{
 		// TODO increase font
 		"Set FontSize 15",
@@ -95,8 +96,8 @@ func GetTerminalGIF(c *gin.Context) {
 		}
 		if status == GIFStatuses.Processing {
 			waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
+			// TODO check if waiting.gif exists (it takes few seconds when app is starting)
 			c.File(waitGifPath)
-			// c.JSON(http.StatusAccepted, gin.H{"message": "wait"})
 			return
 		}
 		if status == GIFStatuses.Ready {
