@@ -76,4 +76,8 @@ TODO
   - persist hash -> GIF file path on redis (maybe better sqlite, because no needed of more service and it persist in disk)
 - create homepage to introduce project
 
+- write article/post
+- post on https://x.com/i/communities/1685641800449462272
+- HN
+
 -->

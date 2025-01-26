@@ -6,6 +6,7 @@ import (
 )
 
 func WriteTape(cmds []string, filePath string) error {
+	// TODO write tape on tmp/ directory
 	// Remove old file
 	if err := exec.Command("rm", "-f", filePath).Run(); err != nil {
 		return err

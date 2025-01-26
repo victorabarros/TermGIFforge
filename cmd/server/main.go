@@ -33,11 +33,55 @@ var (
 		"Set FontSize 12",
 		"Set Width 800",
 		"Set Height 400",
+		// TODO add more delay between typing
 	}
 
 	// for now, cache is a map inputHash
 	cache = map[string]GIFStatus{}
 )
+
+func init() {
+	if err := waitingGIF(); err != nil {
+		log.Printf("creating waiting: %+2v\n", err)
+	}
+}
+
+func waitingGIF() error {
+	cmdInput := []string{
+		// TODO increase font
+		"Set FontSize 15",
+		"Type \"while true; do\"", "Sleep 200ms", "Enter", "Sleep 200ms",
+		"Type \"   echo \"Wait...\"\"", "Sleep 200ms", "Enter", "Sleep 200ms",
+		"Type \"   sleep 1\"", "Sleep 200ms", "Enter", "Sleep 200ms",
+		"Type \"done\"", "Sleep 200ms", "Enter", "Sleep 200ms",
+		"Sleep 8s",
+	}
+
+	inputHash := "waiting"
+
+	outTapePath := fmt.Sprintf("output/%s.tape", inputHash)
+	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+
+	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
+	cmds = append(cmds, cmdInput...)
+
+	cache[inputHash] = GIFStatuses.Processing
+
+	if err := gif.WriteTape(cmds, outTapePath); err != nil {
+		cache[inputHash] = GIFStatuses.Fail
+		return err
+	}
+
+	if err := gif.ExecVHS(outTapePath); err != nil {
+		cache[inputHash] = GIFStatuses.Fail
+		return err
+	}
+
+	cache[inputHash] = GIFStatuses.Ready
+
+	exec.Command("rm", "-f", outTapePath).Run()
+	return nil
+}
 
 func main() {
 	r := gin.Default()
@@ -53,7 +97,7 @@ func main() {
 }
 
 func GetMockTerminalGIF(c *gin.Context) {
-	c.File("output/demo.gif")
+	c.File("output/waiting.gif")
 }
 
 func GetTerminalGIF(c *gin.Context) {
@@ -67,7 +111,10 @@ func GetTerminalGIF(c *gin.Context) {
 			// do nothing
 		}
 		if status == GIFStatuses.Processing {
-			c.JSON(http.StatusAccepted, gin.H{"message": "wait"})
+			// TODO use a GIF of a loop echoing "WAIT"
+			waitGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+			c.File(waitGifPath)
+			// c.JSON(http.StatusAccepted, gin.H{"message": "wait"})
 			return
 		}
 		if status == GIFStatuses.Ready {
