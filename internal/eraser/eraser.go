@@ -29,6 +29,7 @@ func Clean(statuses map[string]model.GIFStatus, lastAccess map[string]time.Time)
 			if err := os.Remove(path); err != nil {
 				log.Printf("fail to remove '%s': %+2v\n", path, err)
 			}
+			// TODO use mutex here ?
 			delete(lastAccess, id)
 		}
 	}
