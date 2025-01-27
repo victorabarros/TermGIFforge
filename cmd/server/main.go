@@ -50,6 +50,7 @@ func init() {
 	}
 	for _, gif := range gifs {
 		name := gif.Name()
+		// remove .gif from name
 		id := name[:len(name)-4]
 		statuses[id] = GIFStatuses.Ready
 	}

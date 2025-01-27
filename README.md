@@ -55,9 +55,11 @@ Than, from browser or [Bruno](./zarf/bruno/), open:
 
 - How to force image (cache) update in README.rst on GitHub
   - run `curl -X PURGE {url of cached badge image}` and refresh the page. [link](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github)
+<!-- TODO maybe removing the "waiting.gif", github won't cache this. try it. -->
 
 ## Support
 
+<!-- TODO use gif to write the text below -->
 I'm more than happy to be honored with your support.
 
 <p>
@@ -85,6 +87,7 @@ I'm more than happy to be honored with your support.
 <!--
 TODO
 
+- maybe removing the "waiting.gif", github won't cache this. try it. https://github.com/victorabarros/terminal-GIFs-as-URL/blob/86d1a41568e8626154e99a0e38a8282fe6578d81/README.md#L56
 - list of requirements to publish idea
   - create worker to exclude oldest GIFs
 - cmds to build image using mac or linux
