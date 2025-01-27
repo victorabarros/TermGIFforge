@@ -47,35 +47,12 @@ func init() {
 	}
 }
 
-func waitingGIF() error {
-	// TODO add waiting to "cache"
-	msg := "Wait..."
-	cmdInput := []string{
-		// TODO increase font
-		"Set FontSize 15",
-		"Type \"PROCESSING_YOUR_GIF=true\"", "Enter", "Sleep 250ms",
-		"Type \"while $PROCESSING_YOUR_GIF; do\"", "Enter", "Sleep 250ms",
-		fmt.Sprintf("Type \"   echo \"%s\"\"", msg), "Enter", "Sleep 250ms",
-		"Type \"   sleep 1\"", "Enter", "Sleep 250ms",
-		"Type \"done\"", "Enter", "Sleep 250ms",
-		"Sleep 6s",
-	}
-	log.Println(fmt.Sprintf("Type \"   echo \"%s\"\"", "Enter", "Sleep 250ms", msg))
-
-	inputHash := "waiting"
-
-	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
-
-	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
-	cmds = append(cmds, cmdInput...)
-
-	go processGIF(inputHash, cmds)
-
-	return nil
-}
-
 func main() {
 	r := gin.Default()
+
+	// r.GET("/", func(c *gin.Context) {
+	// 	c.Redirect(http.StatusTemporaryRedirect, "https://github.com/victorabarros/Terminal-GIFs-API?tab=readme-ov-file#terminal-gifs-api-")
+	// })
 
 	rpcGroup := r.Group("/api/v1")
 	rpcGroup.GET("/gif", GetTerminalGIF)
@@ -152,6 +129,32 @@ func processGIF(id string, cmds []string) error {
 	cache[id] = GIFStatuses.Ready
 
 	exec.Command("rm", "-f", outTapePath).Run()
+
+	return nil
+}
+
+func waitingGIF() error {
+	// TODO add waiting to "cache"
+	msg := "Wait..."
+	cmdInput := []string{
+		"Set FontSize 15",
+		"Type \"PROCESSING_YOUR_GIF=true\"", "Enter", "Sleep 250ms",
+		"Type \"while $PROCESSING_YOUR_GIF; do\"", "Enter", "Sleep 250ms",
+		fmt.Sprintf("Type \"   echo '%s'\"", msg), "Enter", "Sleep 250ms",
+		"Type \"   sleep 1\"", "Enter", "Sleep 250ms",
+		"Type \"done\"", "Enter", "Sleep 250ms",
+		"Sleep 6s",
+	}
+	log.Println(fmt.Sprintf("Type \"   echo \"%s\"\"", "Enter", "Sleep 250ms", msg))
+
+	inputHash := "waiting"
+
+	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+
+	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
+	cmds = append(cmds, cmdInput...)
+
+	go processGIF(inputHash, cmds)
 
 	return nil
 }
