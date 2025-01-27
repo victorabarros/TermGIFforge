@@ -87,8 +87,8 @@ I'm more than happy to be honored with your support.
 <!--
 TODO
 
-- maybe removing the "waiting.gif", github won't cache this. try it. https://github.com/victorabarros/terminal-GIFs-as-URL/blob/86d1a41568e8626154e99a0e38a8282fe6578d81/README.md#L56
-- list of requirements to publish idea
+- requirements to publish idea
+  - maybe removing the "waiting.gif", github won't cache this. try it. https://github.com/victorabarros/terminal-GIFs-as-URL/blob/86d1a41568e8626154e99a0e38a8282fe6578d81/README.md#L56
   - create worker to exclude oldest GIFs
 - cmds to build image using mac or linux
 - create homepage to introduce project
@@ -99,6 +99,7 @@ TODO
 - backup https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb and https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_amd64.deb
 
 - write article/post
-- post on https://x.com/i/communities/1685641800449462272 and of show HN
+- ask friends to give star
+- post on https://x.com/i/communities/1685641800449462272, gopher discord, gopher slack, "show HN"...
 
 -->
