@@ -34,7 +34,7 @@ func ExecVHS(filePath string) error {
 	cmd := exec.Command("vhs", filePath)
 
 	// Set the output to the current process's stdout and stderr
-	// TOD if local, enable:
+	// TODO if local, enable:
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
 
