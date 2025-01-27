@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/victorabarros/Terminal-GIFs-API/pkg/model"
+	"github.com/victorabarros/termgifforge/pkg/model"
 )
 
 // Clean erase GIFs older than 24 hours

@@ -1,4 +1,4 @@
-module github.com/victorabarros/Terminal-GIFs-API
+module github.com/victorabarros/termgifforge
 
 go 1.23.4
 

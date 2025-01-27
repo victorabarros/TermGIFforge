@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/victorabarros/Terminal-GIFs-API/internal/eraser"
-	"github.com/victorabarros/Terminal-GIFs-API/internal/files"
-	"github.com/victorabarros/Terminal-GIFs-API/internal/gif"
-	"github.com/victorabarros/Terminal-GIFs-API/internal/id"
-	"github.com/victorabarros/Terminal-GIFs-API/pkg/model"
+	"github.com/victorabarros/termgifforge/internal/eraser"
+	"github.com/victorabarros/termgifforge/internal/files"
+	"github.com/victorabarros/termgifforge/internal/gif"
+	"github.com/victorabarros/termgifforge/internal/id"
+	"github.com/victorabarros/termgifforge/pkg/model"
 )
 
 var (
