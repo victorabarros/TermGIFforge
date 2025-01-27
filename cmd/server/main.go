@@ -6,24 +6,25 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/victorabarros/Terminal-GIFs-API/internal/eraser"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/files"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/gif"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/id"
+	"github.com/victorabarros/Terminal-GIFs-API/pkg/model"
 )
-
-type GIFStatus string
 
 var (
 	GIFStatuses = struct {
-		Fail       GIFStatus
-		Processing GIFStatus
-		Ready      GIFStatus
+		Fail       model.GIFStatus
+		Processing model.GIFStatus
+		Ready      model.GIFStatus
 	}{
-		Fail:       GIFStatus("Fail"),
-		Processing: GIFStatus("Processing"),
-		Ready:      GIFStatus("Ready"),
+		Fail:       model.GIFStatus("Fail"),
+		Processing: model.GIFStatus("Processing"),
+		Ready:      model.GIFStatus("Ready"),
 	}
 	port = "80"
 
@@ -34,8 +35,8 @@ var (
 		"Set Height 400",
 	}
 
-	// for now, statuses is a map inputHash
-	statuses = map[string]GIFStatus{}
+	statuses   = map[string]model.GIFStatus{}
+	lastAccess = map[string]time.Time{}
 )
 
 func init() {
@@ -74,14 +75,26 @@ func main() {
 	rpcGroup := r.Group("/api/v1")
 	rpcGroup.GET("/gif", GetTerminalGIF)
 	rpcGroup.GET("/mock", func(c *gin.Context) {
-		file := "output/error.gif"
-		c.File(file)
+		c.File("output/error.gif")
 		// c.File("output/waiting.gif")
 	})
 
+	// go cleaner() // TODO validade before enable it in production
 	log.Println("Starting app in port", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		log.Printf("%+2v/n", err)
+	}
+}
+
+func cleaner() {
+	sleepLapse := 24 * time.Hour
+	if os.Getenv("ENVIRONMENT") == "local" {
+		sleepLapse = 1 * time.Second
+	}
+
+	for {
+		time.Sleep(sleepLapse)
+		eraser.Clean(statuses, lastAccess)
 	}
 }
 
@@ -106,6 +119,7 @@ func GetTerminalGIF(c *gin.Context) {
 			return
 		}
 		if status == GIFStatuses.Ready {
+			lastAccess[inputHash] = time.Now()
 			c.File(outGifPath)
 			return
 		}
@@ -116,9 +130,7 @@ func GetTerminalGIF(c *gin.Context) {
 
 	go processGIF(inputHash, cmds)
 
-	waitGifPath := "output/waiting.gif"
-	c.File(waitGifPath)
-
+	c.File("output/waiting.gif")
 }
 
 func processGIF(id string, cmds []string) error {
