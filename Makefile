@@ -1,4 +1,4 @@
-APP_NAME=vhsapi
+APP_NAME=termgifforge
 PWD=$(shell pwd)
 API_APP_DIR=/go/src/github.com/victorabarros/${APP_NAME}
 DOCKER_IMAGE=golang:1.23-alpine

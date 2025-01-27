@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os/exec"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/victorabarros/Terminal-GIFs-API/internal/files"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/gif"
 	"github.com/victorabarros/Terminal-GIFs-API/internal/id"
 )
@@ -31,19 +32,35 @@ var (
 		"Set FontSize 12",
 		"Set Width 800",
 		"Set Height 400",
-		// TODO add more delay between typing
 	}
 
-	// for now, cache is a map inputHash
-	cache = map[string]GIFStatus{}
+	// for now, statuses is a map inputHash
+	statuses = map[string]GIFStatus{}
 )
 
 func init() {
-	// TODO mkdir output/ if not exists
-	// TODO list GIFs from output/ and set on "cache"
-	// TODO if outGifPath already exist, don't need to redo
-	if err := waitingGIF(); err != nil {
-		log.Printf("creating waiting: %+2v\n", err)
+	if err := files.CreateOutputDirectory(); err != nil {
+		os.Exit(1)
+	}
+
+	gifs, err := files.ListGIFs()
+	if err != nil {
+		os.Exit(1)
+	}
+	for _, gif := range gifs {
+		name := gif.Name()
+		id := name[:len(name)-4]
+		statuses[id] = GIFStatuses.Ready
+	}
+
+	if status := statuses["waiting"]; status != GIFStatuses.Ready {
+		waitingGIF()
+	}
+	if status := statuses["error"]; status != GIFStatuses.Ready {
+		errorGIF()
+	}
+	if status := statuses["invalid"]; status != GIFStatuses.Ready {
+		invalidGIF()
 	}
 }
 
@@ -56,32 +73,36 @@ func main() {
 
 	rpcGroup := r.Group("/api/v1")
 	rpcGroup.GET("/gif", GetTerminalGIF)
-	rpcGroup.GET("/mock", GetMockTerminalGIF)
+	rpcGroup.GET("/mock", func(c *gin.Context) {
+		file := "output/error.gif"
+		c.File(file)
+		// c.File("output/waiting.gif")
+	})
 
-	fmt.Println("Starting app in port", port)
+	log.Println("Starting app in port", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		fmt.Printf("%+2v/n", err)
+		log.Printf("%+2v/n", err)
 	}
-}
-
-func GetMockTerminalGIF(c *gin.Context) {
-	c.File("output/waiting.gif")
 }
 
 func GetTerminalGIF(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
-	inputHash := id.NewUUUIDAsString(cmdsInputStr)
+	cmdInput := []string{}
+	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
+		log.Printf("Error trying to serialize object: %+2v\n", err)
+		c.File("output/invalid.gif")
+		return
+	}
 
+	inputHash := id.NewUUUIDAsString(cmdsInputStr)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
-	if status, ok := cache[inputHash]; ok {
+	if status, ok := statuses[inputHash]; ok {
 		if status == GIFStatuses.Fail {
-			// do nothing
-			// TODO create GIF saying it was not possible do your GIF
+			c.File("output/error.gif")
+			return
 		}
 		if status == GIFStatuses.Processing {
-			waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
-			// TODO check if waiting.gif exists (it takes few seconds when app is starting)
-			c.File(waitGifPath)
+			c.File("output/waiting.gif")
 			return
 		}
 		if status == GIFStatuses.Ready {
@@ -90,52 +111,39 @@ func GetTerminalGIF(c *gin.Context) {
 		}
 	}
 
-	cmdInput := []string{}
-	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
-		log.Printf("Error trying to serialize object: %+2v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request"})
-		return
-	}
-
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
 	go processGIF(inputHash, cmds)
 
-	waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
+	waitGifPath := "output/waiting.gif"
 	c.File(waitGifPath)
 
 }
 
 func processGIF(id string, cmds []string) error {
 	outTapePath := fmt.Sprintf("output/%s.tape", id)
-	// TODO introduce mutex here to avoid race condition
-	cache[id] = GIFStatuses.Processing
+	statuses[id] = GIFStatuses.Processing
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		log.Printf("Error writing to file: %+2v\n", err)
-		// TODO introduce mutex here to avoid race condition
-		cache[id] = GIFStatuses.Fail
+		statuses[id] = GIFStatuses.Fail
 		return err
 	}
+	defer os.Remove(outTapePath)
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		log.Printf("Error running command: %+2v\n", err)
-		// TODO introduce mutex here to avoid race condition
-		cache[id] = GIFStatuses.Fail
+		statuses[id] = GIFStatuses.Fail
 		return err
 	}
 
-	// TODO introduce mutex here to avoid race condition
-	cache[id] = GIFStatuses.Ready
-
-	exec.Command("rm", "-f", outTapePath).Run()
+	statuses[id] = GIFStatuses.Ready
 
 	return nil
 }
 
 func waitingGIF() error {
-	// TODO add waiting to "cache"
 	msg := "Wait..."
 	cmdInput := []string{
 		"Set FontSize 15",
@@ -148,6 +156,42 @@ func waitingGIF() error {
 	}
 
 	inputHash := "waiting"
+
+	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+
+	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
+	cmds = append(cmds, cmdInput...)
+
+	go processGIF(inputHash, cmds)
+
+	return nil
+}
+
+func errorGIF() error {
+	cmdInput := []string{
+		"Type \"Sorry, it was not possible create your GIF. =/\"",
+		"Sleep 6s",
+	}
+
+	inputHash := "error"
+
+	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+
+	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
+	cmds = append(cmds, cmdInput...)
+
+	go processGIF(inputHash, cmds)
+
+	return nil
+}
+
+func invalidGIF() error {
+	cmdInput := []string{
+		"Type \"Invalid request...\"",
+		"Sleep 6s",
+	}
+
+	inputHash := "invalid"
 
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
 
