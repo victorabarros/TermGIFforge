@@ -27,17 +27,6 @@ Than, from browser or [Bruno](./zarf/bruno/), open:
 - http://localhost:9001/api/v1/gif?commands=["Type \"echo Hi\"","Enter","Sleep 2s"]
 
 <!--
-http://terminalgifapi.com/api/v1/gif?commands=[
-    "Type \"# build image run: make build-image\"",
-    "Sleep 100ms",
-    "Enter",
-    "Type \"# debug container sharing volume run: make debug-container\"",
-    "Sleep 100ms",
-    "Enter",
-    "Type \"# start server from inside container run: go run cmd/server/main.go\"",
-    "Sleep 100ms",
-    "Enter",
-    "Sleep 2s"]
 - http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'The Magic Happens Here'\"","Enter","Sleep 2s"]
 - http://terminalgifapi.com/api/v1/gif?commands=[
     "Set FontSize 50",
@@ -50,7 +39,6 @@ http://terminalgifapi.com/api/v1/gif?commands=[
     "Sleep 100ms",
     "Enter",
     "Sleep 2s"]
-- http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
 - http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]
 - http://terminalgifapi.com/api/v1/gif?commands=[
     "Type \"echo 'How to run locally w/ Docker'\"\n","Sleep 400ms","Enter","Sleep 200ms",
@@ -58,16 +46,29 @@ http://terminalgifapi.com/api/v1/gif?commands=[
     "Type \"echo 'make debug-container to start a terminal from inside the container'\"\n","Sleep 400ms","Enter","Sleep 200ms",
     "Type \"echo 'go run cmd/server/main.go'\"\n","Sleep 400ms","Enter","Sleep 200ms",
     "Sleep 2s"]
-- http://localhost:9001/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
-- http://localhost:9001/api/v1/gif?commands=["Type \"cat README.md\"","Enter","Sleep 2s"]
-- http://localhost:9001/api/v1/gif?commands=["Type \"less README.md\"","Enter","Sleep 2s"]
+- http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
+- http://terminalgifapi.com/api/v1/gif?commands=["Type \"cat README.md\"","Enter","Sleep 2s"]
+- http://terminalgifapi.com/api/v1/gif?commands=["Type \"less README.md\"","Enter","Sleep 2s"]
 -->
-
 
 ## Troubleshooting
 
 - How to force image (cache) update in README.rst on GitHub
   - run `curl -X PURGE {url of cached badge image}` and refresh the page. [link](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github)
+
+## Support
+
+I'm more than happy to be honored with your support.
+
+<p>
+  <a href="https://victor.barros.engineer/wallet" target="_blank">
+    <img src="https://bitcoin.org/img/icons/logotop.svg?1671880122" height="40px">
+  </a>
+  <br/>
+  <a href="https://www.buymeacoffee.com/victorbarros" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="45px">
+  </a>
+</p>
 
 ## References
 
