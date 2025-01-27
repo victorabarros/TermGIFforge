@@ -19,6 +19,3 @@ debug-container:
 compile:
 	@echo "Compiling ${APP_NAME} to ./main"
 	@make debug-container COMMAND='go build cmd/server/main.go'
-	@docker run --rm -it -p ${PORT}:80 \
-		-v .:${API_APP_DIR} -w ${API_APP_DIR} \
-		${APP_NAME} bash -c "${COMMAND}"

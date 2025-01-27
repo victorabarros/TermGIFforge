@@ -145,7 +145,6 @@ func waitingGIF() error {
 		"Type \"done\"", "Enter", "Sleep 250ms",
 		"Sleep 6s",
 	}
-	log.Println(fmt.Sprintf("Type \"   echo \"%s\"\"", "Enter", "Sleep 250ms", msg))
 
 	inputHash := "waiting"
 

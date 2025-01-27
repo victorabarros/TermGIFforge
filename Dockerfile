@@ -40,12 +40,6 @@ RUN apt-get install -y wget
 RUN wget https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb
 RUN dpkg -i vhs_0.9.0_arm64.deb
 
-# # Create volume
-# VOLUME /vhs
-# WORKDIR /vhs
-
-# Create user
-# RUN useradd -u 1976 -U -s /bin/false vhs
 # Mimic alpine default color option
 RUN echo 'alias ls="ls --color"' >> ~/.bashrc
 
