@@ -13,18 +13,18 @@ import (
 	"github.com/victorabarros/termgifforge/internal/files"
 	"github.com/victorabarros/termgifforge/internal/gif"
 	"github.com/victorabarros/termgifforge/internal/id"
-	"github.com/victorabarros/termgifforge/pkg/model"
+	"github.com/victorabarros/termgifforge/pkg/models"
 )
 
 var (
 	GIFStatuses = struct {
-		Fail       model.GIFStatus
-		Processing model.GIFStatus
-		Ready      model.GIFStatus
+		Fail       models.GIFStatus
+		Processing models.GIFStatus
+		Ready      models.GIFStatus
 	}{
-		Fail:       model.GIFStatus("Fail"),
-		Processing: model.GIFStatus("Processing"),
-		Ready:      model.GIFStatus("Ready"),
+		Fail:       models.GIFStatus("Fail"),
+		Processing: models.GIFStatus("Processing"),
+		Ready:      models.GIFStatus("Ready"),
 	}
 	port = "80"
 
@@ -35,7 +35,7 @@ var (
 		"Set Height 400",
 	}
 
-	statuses   = map[string]model.GIFStatus{}
+	statuses   = map[string]models.GIFStatus{}
 	lastAccess = map[string]time.Time{}
 )
 
@@ -87,7 +87,7 @@ func main() {
 }
 
 func cleaner() {
-	sleepLapse := 24 * time.Hour
+	sleepLapse := 1 * time.Hour
 	if os.Getenv("ENVIRONMENT") == "local" {
 		sleepLapse = 1 * time.Second
 	}

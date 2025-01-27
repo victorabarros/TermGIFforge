@@ -6,11 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/victorabarros/termgifforge/pkg/model"
+	"github.com/victorabarros/termgifforge/pkg/models"
 )
 
 // Clean erase GIFs older than 24 hours
-func Clean(statuses map[string]model.GIFStatus, lastAccess map[string]time.Time) {
+func Clean(statuses map[string]models.GIFStatus, lastAccess map[string]time.Time) {
 	for id := range statuses {
 		if id == "waiting" || id == "error" || id == "invalid" {
 			continue
@@ -23,6 +23,7 @@ func Clean(statuses map[string]model.GIFStatus, lastAccess map[string]time.Time)
 			continue
 		}
 
+		// TTL 24 hours
 		yesterday := time.Now().Add(-24 * time.Hour)
 		if access.Before(yesterday) {
 			path := fmt.Sprintf("output/%s.gif", id)
