@@ -50,9 +50,9 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	// r.GET("/", func(c *gin.Context) {
-	// 	c.Redirect(http.StatusTemporaryRedirect, "https://github.com/victorabarros/Terminal-GIFs-API?tab=readme-ov-file#terminal-gifs-api-")
-	// })
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "https://github.com/victorabarros/TermGIFforge?tab=readme-ov-file#termgifforge-")
+	})
 
 	rpcGroup := r.Group("/api/v1")
 	rpcGroup.GET("/gif", GetTerminalGIF)
