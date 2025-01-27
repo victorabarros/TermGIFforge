@@ -1,5 +1,5 @@
-FROM tsl0922/ttyd:alpine as ttyd
-FROM alpine:latest as fontcollector
+FROM tsl0922/ttyd:alpine AS ttyd
+FROM alpine:latest AS fontcollector
 
 # Install Fonts
 RUN apk add --no-cache \
@@ -46,13 +46,13 @@ RUN echo 'alias ls="ls --color"' >> ~/.bashrc
 # Install
 # COPY vhs /usr/bin/
 
-ENV VHS_PORT "1976"
-ENV VHS_HOST "0.0.0.0"
-ENV VHS_GID "1976"
-ENV VHS_UID "1976"
-ENV VHS_KEY_PATH "/vhs/vhs"
-ENV VHS_AUTHORIZED_KEYS_PATH ""
-ENV VHS_NO_SANDBOX "true"
+ENV VHS_PORT="1976"
+ENV VHS_HOST="0.0.0.0"
+ENV VHS_GID="1976"
+ENV VHS_UID="1976"
+ENV VHS_KEY_PATH="/vhs/vhs"
+ENV VHS_AUTHORIZED_KEYS_PATH=""
+ENV VHS_NO_SANDBOX="true"
 
 # ENTRYPOINT ["bash"]
 CMD ["bash"]
