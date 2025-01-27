@@ -76,6 +76,7 @@ func GetTerminalGIF(c *gin.Context) {
 	if status, ok := cache[inputHash]; ok {
 		if status == GIFStatuses.Fail {
 			// do nothing
+			// TODO create GIF saying it was not possible do your GIF
 		}
 		if status == GIFStatuses.Processing {
 			waitGifPath := fmt.Sprintf("output/%s.gif", "waiting")
