@@ -60,25 +60,22 @@ Try:
   <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Type%20\%22echo%20%27How%20to%20run%20locally%20w/%20Docker%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20%27make%20build-image%20to%20build%20image%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20%27make%20debug-container%20to%20start%20a%20terminal%20from%20inside%20the%20container%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20%27go%20run%20cmd/server/main.go%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Sleep%202s%22]"/>
 </p>
 
-Than, from browser or [Bruno](./zarf/bruno/), open:
+Then, from browser or [Bruno](./zarf/bruno/), open:
 
-- http://localhost:9001/api/v1/gif?commands=["Type \"echo Hi\"","Enter","Sleep 2s"]
+- [http://localhost:9001/api/v1/gif?commands=\["Type \\"echo Hi\\"","Enter","Sleep 2s"\]](http://localhost:9001/api/v1/gif?commands=["Type%20\"echo%20Hi\"","Enter","Sleep%202s"])
 
 ## Troubleshooting
 
 - How to encode the URL to use in the HTML tag?
   - Simply enter your URL to the browser and it'll parse it to you.
 - How to force image (cache) update in README.rst on GitHub?
-  - run `curl -X PURGE {url of cached badge image}` and refresh the page. [link](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github)
+  - run `curl -X PURGE {url of cached badge image}` and refresh the page [(reference)](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github).
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests to enhance the project.
+Contributions are welcome! Feel free to open issues or fork the repo and submit pull requests to enhance the project.
 
 ## Support
-
-<p align="center">
-</p>
 
 <p>
   <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2060%22,%20%22Type%20\%22I%20am%20happy%20to%20be%20honored%20with%20your%20support!%20S2S2\%22%22,%20%22Sleep%202s%22%20]" height="200px"/>
