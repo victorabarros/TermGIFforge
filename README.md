@@ -53,16 +53,20 @@ Than, from browser or [Bruno](./zarf/bruno/), open:
 
 ## Troubleshooting
 
-- How to force image (cache) update in README.rst on GitHub
+- How to encode the URL to use in the HTML tag?
+  - Simply enter your URL to the browser and it'll parse it to you.
+- How to force image (cache) update in README.rst on GitHub?
   - run `curl -X PURGE {url of cached badge image}` and refresh the page. [link](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github)
-<!-- TODO maybe removing the "waiting.gif", github won't cache this. try it. -->
 
 ## Support
 
-<!-- TODO use gif to write the text below -->
-I'm more than happy to be honored with your support.
+<p align="center">
+</p>
 
 <p>
+  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2060%22,%20%22Type%20\%22I%20am%20happy%20to%20be%20honored%20with%20your%20support!%20S2S2\%22%22,%20%22Sleep%202s%22%20]" height="200px"/>
+  <br/>
+  <br/>
   <a href="https://victor.barros.engineer/wallet" target="_blank">
     <img src="https://bitcoin.org/img/icons/logotop.svg?1671880122" height="40px">
   </a>
@@ -75,10 +79,13 @@ I'm more than happy to be honored with your support.
 ## References
 
 - https://github.com/charmbracelet/vhs
-<!-- - https://github.com/anuraghazra/github-readme-stats
+<!--
+- https://github.com/anuraghazra/github-readme-stats
 - https://github.com/DenverCoder1/github-readme-streak-stats
 - https://github.com/rahuldkjain/github-profile-readme-generator
-- https://github.com/ryo-ma/github-profile-trophy -->
+- https://github.com/ryo-ma/github-profile-trophy
+- [![Star History Chart](https://api.star-history.com/svg?repos=getumbrel/umbrel&type=Date)](https://star-history.com/#getumbrel/umbrel&Date)
+-->
 
 ## Licence
 
@@ -88,18 +95,23 @@ I'm more than happy to be honored with your support.
 TODO
 
 - requirements to publish idea
-  - maybe removing the "waiting.gif", github won't cache this. try it. https://github.com/victorabarros/terminal-GIFs-as-URL/blob/86d1a41568e8626154e99a0e38a8282fe6578d81/README.md#L56
   - create worker to exclude oldest GIFs
-- cmds to build image using mac or linux
-- create homepage to introduce project
+  - create homepage to introduce project
+    - use https://lovable.dev/ for that
 - improve dockerfile
+  - cmds to build image using mac or linux
+    - receive OS as arg and select script to install vhs
   - create stage with shared volume and build project
   - copy build to release fase
   - entrypoint to run builded
+- improve readme
+  - https://shields.io/badges, like https://github.com/ClickHouse/ClickHouse/blob/1eecaa0905e1d604231a12ad2088d189c12744c1/README.md?plain=1#L3
+
 - backup https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb and https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_amd64.deb
 
 - write article/post
 - ask friends to give star
 - post on https://x.com/i/communities/1685641800449462272, gopher discord, gopher slack, "show HN"...
+- https://star-history.com/blog/playbook-for-more-github-stars
 
 -->

@@ -10,8 +10,8 @@ import (
 )
 
 // Clean erase GIFs older than 24 hours
-func Clean(statuses map[string]models.GIFStatus, lastAccess map[string]time.Time) {
-	for id := range statuses {
+func Clean(statuses models.StatusDetails, lastAccess map[string]time.Time) {
+	for id := range statuses.Status {
 		if id == "waiting" || id == "error" || id == "invalid" {
 			continue
 		}

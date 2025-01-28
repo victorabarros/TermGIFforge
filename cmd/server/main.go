@@ -17,29 +17,23 @@ import (
 )
 
 var (
-	GIFStatuses = struct {
-		Fail       models.GIFStatus
-		Processing models.GIFStatus
-		Ready      models.GIFStatus
-	}{
-		Fail:       models.GIFStatus("Fail"),
-		Processing: models.GIFStatus("Processing"),
-		Ready:      models.GIFStatus("Ready"),
-	}
 	port = "80"
 
-	setCmds = []string{
+	outputCmdFormat = "Output %s"
+	setCmds         = []string{
 		"Set WindowBar Colorful",
 		"Set FontSize 12",
 		"Set Width 800",
 		"Set Height 400",
 	}
 
-	statuses   = map[string]models.GIFStatus{}
+	statuses   = models.StatusDetails{}
 	lastAccess = map[string]time.Time{}
 )
 
 func init() {
+	statuses = models.NewStatusDetails()
+
 	if err := files.CreateOutputDirectory(); err != nil {
 		os.Exit(1)
 	}
@@ -52,16 +46,13 @@ func init() {
 		name := gif.Name()
 		// remove .gif from name
 		id := name[:len(name)-4]
-		// TODO mutex
-		statuses[id] = GIFStatuses.Ready
+		statuses.Set(id, models.GIFStatuses.Ready)
 	}
 
-	// TODO mutex
-	if status := statuses["error"]; status != GIFStatuses.Ready {
+	if status, _ := statuses.Get("error"); status != models.GIFStatuses.Ready {
 		errorGIF()
 	}
-	// TODO mutex
-	if status := statuses["invalid"]; status != GIFStatuses.Ready {
+	if status, _ := statuses.Get("invalid"); status != models.GIFStatuses.Ready {
 		invalidGIF()
 	}
 }
@@ -94,7 +85,6 @@ func cleaner() {
 
 	for {
 		time.Sleep(sleepLapse)
-		// TODO mutex
 		eraser.Clean(statuses, lastAccess)
 	}
 }
@@ -110,17 +100,16 @@ func GetTerminalGIF(c *gin.Context) {
 
 	inputHash := id.NewUUUIDAsString(cmdsInputStr)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
-	// TODO mutex
-	if status, ok := statuses[inputHash]; ok {
-		if status == GIFStatuses.Fail {
+	if status, ok := statuses.Get(inputHash); ok {
+		if status == models.GIFStatuses.Fail {
 			c.File("output/error.gif")
 			return
 		}
-		if status == GIFStatuses.Processing {
+		if status == models.GIFStatuses.Processing {
 			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
 			return
 		}
-		if status == GIFStatuses.Ready {
+		if status == models.GIFStatuses.Ready {
 			// TODO mutex
 			lastAccess[inputHash] = time.Now()
 			c.File(outGifPath)
@@ -128,7 +117,7 @@ func GetTerminalGIF(c *gin.Context) {
 		}
 	}
 
-	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
+	cmds := append([]string{fmt.Sprintf(outputCmdFormat, outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
 	go processGIF(inputHash, cmds)
@@ -138,26 +127,22 @@ func GetTerminalGIF(c *gin.Context) {
 
 func processGIF(id string, cmds []string) error {
 	outTapePath := fmt.Sprintf("output/%s.tape", id)
-	// TODO mutex
-	statuses[id] = GIFStatuses.Processing
+	statuses.Set(id, models.GIFStatuses.Processing)
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		log.Printf("Error writing to file: %+2v\n", err)
-		// TODO mutex
-		statuses[id] = GIFStatuses.Fail
+		statuses.Set(id, models.GIFStatuses.Fail)
 		return err
 	}
 	defer os.Remove(outTapePath)
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		log.Printf("Error running command: %+2v\n", err)
-		// TODO mutex
-		statuses[id] = GIFStatuses.Fail
+		statuses.Set(id, models.GIFStatuses.Fail)
 		return err
 	}
 
-	// TODO mutex
-	statuses[id] = GIFStatuses.Ready
+	statuses.Set(id, models.GIFStatuses.Ready)
 	// TODO log GIF done
 	return nil
 }
