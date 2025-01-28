@@ -120,9 +120,13 @@ TODO
   - entrypoint to run builded
 - implement workers to limit GIF processing at same time
 
-- write article/post
-- ask friends to give star
-- post on https://x.com/i/communities/1685641800449462272, gopher discord, gopher slack, "show HN"...
 - https://star-history.com/blog/playbook-for-more-github-stars
+- write article/post
+- post on
+  - ask friends to give star
+  - https://x.com/i/communities/1685641800449462272,
+  - gopher discord,
+  - gopher slack,
+  - "show HN" (https://news.ycombinator.com/show)...
 
 -->

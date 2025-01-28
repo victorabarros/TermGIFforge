@@ -82,7 +82,7 @@ func main() {
 
 	go files.Cleaner(&details)
 
-	log.Println("Starting app in port", port)
+	log.Printf("Starting app version %s in port %s", version, port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		log.Printf("%+2v/n", err)
 	}
