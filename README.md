@@ -2,8 +2,8 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/victorabarros/termgifforge)](https://goreportcard.com/report/github.com/victorabarros/termgifforge) ![GitHub License](https://img.shields.io/github/license/victorabarros/TermGIFforge)
 
-On-the-Fly Terminal GIF Effortlessly Generation
-Elevate your documentation with **TermGIFforge**, the API that transforms your terminal commands into polished, animated GIFs.
+**Turn your terminal recordings into captivating GIFs effortlessly.**
+Ideal for tutorials, documentation, and sharing terminal workflows.
 
 <p align="center">
   <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2050%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22echo%20\%22%22,%20%22Set%20TypingSpeed%20500ms%22,%20%22Type%20\%22%27YEY\%22%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22!!!!%27\%22%22,%20%22Sleep%20100ms%22,%20%22Enter%22,%20%22Sleep%202s%22]"/>
@@ -11,6 +11,18 @@ Elevate your documentation with **TermGIFforge**, the API that transforms your t
 </p>
 
 Use this API to present creative ways of your software commands.
+
+## Table of Contents
+
+- [TermGIFforge 👾](#termgifforge-)
+  - [Table of Contents](#table-of-contents)
+  - [Instructions](#instructions)
+  - [How to run](#how-to-run)
+    - [Locally w/ docker 🐳](#locally-w-docker-)
+  - [Troubleshooting](#troubleshooting)
+  - [Contributing](#contributing)
+  - [Support](#support)
+  - [References](#references)
 
 ## Instructions
 
@@ -59,6 +71,10 @@ Than, from browser or [Bruno](./zarf/bruno/), open:
 - How to force image (cache) update in README.rst on GitHub?
   - run `curl -X PURGE {url of cached badge image}` and refresh the page. [link](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github)
 
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests to enhance the project.
+
 ## Support
 
 <p align="center">
@@ -103,8 +119,6 @@ TODO
   - copy build to release fase
   - entrypoint to run builded
 - implement workers to limit GIF processing at same time
-
-- backup https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb and https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_amd64.deb
 
 - write article/post
 - ask friends to give star

@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	port = "80"
+	port    = "80"
+	version = "0.1.0"
 
 	outputCmdFormat = "Output %s"
 	setCmds         = []string{
@@ -70,7 +71,7 @@ func main() {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "GIF in process"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "success", "nofGIFs": len(gifs)})
+		c.JSON(http.StatusOK, gin.H{"message": "success", "nofGIFs": len(gifs), "version": version})
 	})
 
 	rpcGroup := r.Group("/api/v1")
