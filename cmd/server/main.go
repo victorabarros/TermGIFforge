@@ -63,8 +63,18 @@ func main() {
 		)
 	})
 
+	r.GET("/ping", func(c *gin.Context) {
+		gifs, err := files.ListGIFs()
+		if err != nil {
+			log.Printf("Fail to list GIFs %+2v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "GIF in process"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "success", "nofGIFs": len(gifs)})
+	})
+
 	rpcGroup := r.Group("/api/v1")
-	rpcGroup.GET("/gif", GetTerminalGIF)
+	rpcGroup.GET("/gif", terminalGIF)
 	rpcGroup.GET("/mock", func(c *gin.Context) {
 		c.File("output/error.gif")
 	})
@@ -77,7 +87,7 @@ func main() {
 	}
 }
 
-func GetTerminalGIF(c *gin.Context) {
+func terminalGIF(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
