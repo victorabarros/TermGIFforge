@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/victorabarros/termgifforge/internal/eraser"
 	"github.com/victorabarros/termgifforge/internal/files"
 	"github.com/victorabarros/termgifforge/internal/gif"
 	"github.com/victorabarros/termgifforge/internal/id"
@@ -27,13 +26,10 @@ var (
 		"Set Height 400",
 	}
 
-	statuses   = models.StatusDetails{}
-	lastAccess = map[string]time.Time{}
+	details = models.NewGIFDetails()
 )
 
 func init() {
-	statuses = models.NewStatusDetails()
-
 	if err := files.CreateOutputDirectory(); err != nil {
 		os.Exit(1)
 	}
@@ -46,13 +42,13 @@ func init() {
 		name := gif.Name()
 		// remove .gif from name
 		id := name[:len(name)-4]
-		statuses.Set(id, models.GIFStatuses.Ready)
+		details.SetStatus(id, models.GIFStatuses.Ready)
 	}
 
-	if status, _ := statuses.Get("error"); status != models.GIFStatuses.Ready {
+	if d, _ := details.Get("error"); d.Status != models.GIFStatuses.Ready {
 		errorGIF()
 	}
-	if status, _ := statuses.Get("invalid"); status != models.GIFStatuses.Ready {
+	if d, _ := details.Get("invalid"); d.Status != models.GIFStatuses.Ready {
 		invalidGIF()
 	}
 }
@@ -61,7 +57,10 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusTemporaryRedirect, "https://github.com/victorabarros/TermGIFforge?tab=readme-ov-file#termgifforge-")
+		c.Redirect(
+			http.StatusTemporaryRedirect,
+			"https://github.com/victorabarros/TermGIFforge?tab=readme-ov-file#termgifforge-",
+		)
 	})
 
 	rpcGroup := r.Group("/api/v1")
@@ -70,22 +69,45 @@ func main() {
 		c.File("output/error.gif")
 	})
 
-	// go cleaner() // TODO validade before enable it in production
+	go storageCleaner()
 	log.Println("Starting app in port", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		log.Printf("%+2v/n", err)
 	}
 }
 
-func cleaner() {
+func storageCleaner() {
 	sleepLapse := 1 * time.Hour
-	if os.Getenv("ENVIRONMENT") == "local" {
-		sleepLapse = 1 * time.Second
-	}
 
 	for {
 		time.Sleep(sleepLapse)
-		eraser.Clean(statuses, lastAccess)
+		log.Println("Init cleaner")
+		for id := range details.GIF {
+			if id == "waiting" || id == "error" || id == "invalid" {
+				continue
+			}
+
+			d, ok := details.Get(id)
+			if !ok {
+				// 12 hour default last access
+				defaultLastAccess := time.Now().Add(-12 * time.Hour)
+				details.SetLastAccess(id, defaultLastAccess)
+				continue
+			}
+
+			// TTL 24 hours
+			ttl := -24 * time.Hour
+			if d.LastAccess.Before(time.Now().Add(ttl)) {
+				path := fmt.Sprintf("output/%s.gif", id)
+				log.Printf("removing GIF %s \n", path)
+				if err := os.Remove(path); err != nil {
+					log.Printf("fail to remove '%s': %+2v\n", path, err)
+					continue
+				}
+
+				details.Del(id)
+			}
+		}
 	}
 }
 
@@ -100,18 +122,17 @@ func GetTerminalGIF(c *gin.Context) {
 
 	inputHash := id.NewUUUIDAsString(cmdsInputStr)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
-	if status, ok := statuses.Get(inputHash); ok {
-		if status == models.GIFStatuses.Fail {
+	if d, ok := details.Get(inputHash); ok {
+		if d.Status == models.GIFStatuses.Fail {
 			c.File("output/error.gif")
 			return
 		}
-		if status == models.GIFStatuses.Processing {
+		if d.Status == models.GIFStatuses.Processing {
 			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
 			return
 		}
-		if status == models.GIFStatuses.Ready {
-			// TODO mutex
-			lastAccess[inputHash] = time.Now()
+		if d.Status == models.GIFStatuses.Ready {
+			details.SetLastAccess(inputHash, time.Now())
 			c.File(outGifPath)
 			return
 		}
@@ -127,23 +148,24 @@ func GetTerminalGIF(c *gin.Context) {
 
 func processGIF(id string, cmds []string) error {
 	outTapePath := fmt.Sprintf("output/%s.tape", id)
-	statuses.Set(id, models.GIFStatuses.Processing)
+	details.SetStatus(id, models.GIFStatuses.Processing)
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		log.Printf("Error writing to file: %+2v\n", err)
-		statuses.Set(id, models.GIFStatuses.Fail)
+		details.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 	defer os.Remove(outTapePath)
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		log.Printf("Error running command: %+2v\n", err)
-		statuses.Set(id, models.GIFStatuses.Fail)
+		details.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 
-	statuses.Set(id, models.GIFStatuses.Ready)
-	// TODO log GIF done
+	details.SetStatus(id, models.GIFStatuses.Ready)
+
+	log.Printf("GIF Created id %s\n", id)
 	return nil
 }
 
