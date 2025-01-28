@@ -5,6 +5,7 @@ import (
 	"os/exec"
 )
 
+// WriteTape creates .tape file and write commands to it
 func WriteTape(cmds []string, filePath string) error {
 	// Remove old file
 	os.Remove(filePath)
@@ -27,6 +28,7 @@ func WriteTape(cmds []string, filePath string) error {
 	return nil
 }
 
+// ExecVHS runs VHS to create GIF from .tape file
 func ExecVHS(filePath string) error {
 	cmd := exec.Command("vhs", filePath)
 

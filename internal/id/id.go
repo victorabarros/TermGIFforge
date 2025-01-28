@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// create deterministic UUUID
+// NewUUUIDAsString create deterministic UUUID
 func NewUUUIDAsString(input string) string {
 	// calculate the MD5 hash of the
 	md5hash := md5.New()

@@ -69,45 +69,11 @@ func main() {
 		c.File("output/error.gif")
 	})
 
-	go storageCleaner()
+	go files.Cleaner(&details)
+
 	log.Println("Starting app in port", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		log.Printf("%+2v/n", err)
-	}
-}
-
-func storageCleaner() {
-	sleepLapse := 1 * time.Hour
-
-	for {
-		time.Sleep(sleepLapse)
-		log.Println("Init cleaner")
-		for id := range details.GIF {
-			if id == "waiting" || id == "error" || id == "invalid" {
-				continue
-			}
-
-			d, ok := details.Get(id)
-			if !ok {
-				// 12 hour default last access
-				defaultLastAccess := time.Now().Add(-12 * time.Hour)
-				details.SetLastAccess(id, defaultLastAccess)
-				continue
-			}
-
-			// TTL 24 hours
-			ttl := -24 * time.Hour
-			if d.LastAccess.Before(time.Now().Add(ttl)) {
-				path := fmt.Sprintf("output/%s.gif", id)
-				log.Printf("removing GIF %s \n", path)
-				if err := os.Remove(path); err != nil {
-					log.Printf("fail to remove '%s': %+2v\n", path, err)
-					continue
-				}
-
-				details.Del(id)
-			}
-		}
 	}
 }
 
@@ -120,9 +86,9 @@ func GetTerminalGIF(c *gin.Context) {
 		return
 	}
 
-	inputHash := id.NewUUUIDAsString(cmdsInputStr)
-	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
-	if d, ok := details.Get(inputHash); ok {
+	id := id.NewUUUIDAsString(cmdsInputStr)
+	outGifPath := fmt.Sprintf("output/%s.gif", id)
+	if d, ok := details.Get(id); ok {
 		if d.Status == models.GIFStatuses.Fail {
 			c.File("output/error.gif")
 			return
@@ -132,7 +98,7 @@ func GetTerminalGIF(c *gin.Context) {
 			return
 		}
 		if d.Status == models.GIFStatuses.Ready {
-			details.SetLastAccess(inputHash, time.Now())
+			details.SetLastAccess(id, time.Now())
 			c.File(outGifPath)
 			return
 		}
@@ -141,7 +107,7 @@ func GetTerminalGIF(c *gin.Context) {
 	cmds := append([]string{fmt.Sprintf(outputCmdFormat, outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	go processGIF(inputHash, cmds)
+	go processGIF(id, cmds)
 
 	c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
 }
@@ -175,14 +141,13 @@ func errorGIF() error {
 		"Sleep 6s",
 	}
 
-	inputHash := "error"
-
-	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+	id := "error"
+	outGifPath := fmt.Sprintf("output/%s.gif", id)
 
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	go processGIF(inputHash, cmds)
+	go processGIF(id, cmds)
 
 	return nil
 }
@@ -193,14 +158,13 @@ func invalidGIF() error {
 		"Sleep 6s",
 	}
 
-	inputHash := "invalid"
-
-	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+	id := "invalid"
+	outGifPath := fmt.Sprintf("output/%s.gif", id)
 
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	go processGIF(inputHash, cmds)
+	go processGIF(id, cmds)
 
 	return nil
 }
