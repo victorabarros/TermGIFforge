@@ -52,15 +52,15 @@ func init() {
 		name := gif.Name()
 		// remove .gif from name
 		id := name[:len(name)-4]
+		// TODO mutex
 		statuses[id] = GIFStatuses.Ready
 	}
 
-	if status := statuses["waiting"]; status != GIFStatuses.Ready {
-		waitingGIF()
-	}
+	// TODO mutex
 	if status := statuses["error"]; status != GIFStatuses.Ready {
 		errorGIF()
 	}
+	// TODO mutex
 	if status := statuses["invalid"]; status != GIFStatuses.Ready {
 		invalidGIF()
 	}
@@ -77,7 +77,6 @@ func main() {
 	rpcGroup.GET("/gif", GetTerminalGIF)
 	rpcGroup.GET("/mock", func(c *gin.Context) {
 		c.File("output/error.gif")
-		// c.File("output/waiting.gif")
 	})
 
 	// go cleaner() // TODO validade before enable it in production
@@ -95,6 +94,7 @@ func cleaner() {
 
 	for {
 		time.Sleep(sleepLapse)
+		// TODO mutex
 		eraser.Clean(statuses, lastAccess)
 	}
 }
@@ -110,16 +110,18 @@ func GetTerminalGIF(c *gin.Context) {
 
 	inputHash := id.NewUUUIDAsString(cmdsInputStr)
 	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
+	// TODO mutex
 	if status, ok := statuses[inputHash]; ok {
 		if status == GIFStatuses.Fail {
 			c.File("output/error.gif")
 			return
 		}
 		if status == GIFStatuses.Processing {
-			c.File("output/waiting.gif")
+			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
 			return
 		}
 		if status == GIFStatuses.Ready {
+			// TODO mutex
 			lastAccess[inputHash] = time.Now()
 			c.File(outGifPath)
 			return
@@ -131,15 +133,17 @@ func GetTerminalGIF(c *gin.Context) {
 
 	go processGIF(inputHash, cmds)
 
-	c.File("output/waiting.gif")
+	c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
 }
 
 func processGIF(id string, cmds []string) error {
 	outTapePath := fmt.Sprintf("output/%s.tape", id)
+	// TODO mutex
 	statuses[id] = GIFStatuses.Processing
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		log.Printf("Error writing to file: %+2v\n", err)
+		// TODO mutex
 		statuses[id] = GIFStatuses.Fail
 		return err
 	}
@@ -147,36 +151,14 @@ func processGIF(id string, cmds []string) error {
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		log.Printf("Error running command: %+2v\n", err)
+		// TODO mutex
 		statuses[id] = GIFStatuses.Fail
 		return err
 	}
 
+	// TODO mutex
 	statuses[id] = GIFStatuses.Ready
-
-	return nil
-}
-
-func waitingGIF() error {
-	msg := "Wait..."
-	cmdInput := []string{
-		"Set FontSize 15",
-		"Type \"PROCESSING_YOUR_GIF=true\"", "Enter", "Sleep 250ms",
-		"Type \"while $PROCESSING_YOUR_GIF; do\"", "Enter", "Sleep 250ms",
-		fmt.Sprintf("Type \"   echo '%s'\"", msg), "Enter", "Sleep 250ms",
-		"Type \"   sleep 1\"", "Enter", "Sleep 250ms",
-		"Type \"done\"", "Enter", "Sleep 250ms",
-		"Sleep 6s",
-	}
-
-	inputHash := "waiting"
-
-	outGifPath := fmt.Sprintf("output/%s.gif", inputHash)
-
-	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
-	cmds = append(cmds, cmdInput...)
-
-	go processGIF(inputHash, cmds)
-
+	// TODO log GIF done
 	return nil
 }
 
