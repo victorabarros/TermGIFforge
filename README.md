@@ -1,5 +1,7 @@
 # TermGIFforge 👾
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/victorabarros/termgifforge)](https://goreportcard.com/report/github.com/victorabarros/termgifforge) ![GitHub License](https://img.shields.io/github/license/victorabarros/TermGIFforge)
+
 On-the-Fly Terminal GIF Effortlessly Generation
 Elevate your documentation with **TermGIFforge**, the API that transforms your terminal commands into polished, animated GIFs.
 
@@ -13,6 +15,30 @@ Use this API to present creative ways of your software commands.
 ## Instructions
 
 **TermGIFforge** uses the [VHS](https://github.com/charmbracelet/vhs) to generate the GIFs, [here you'll find the command references](https://github.com/charmbracelet/vhs?tab=readme-ov-file#vhs-command-reference) to generate your own GIFs.
+Try:
+- `http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'The Magic Happens Here'\"","Enter","Sleep 2s"]`
+- `http://terminalgifapi.com/api/v1/gif?commands=[
+    "Set FontSize 50",
+    "Set TypingSpeed 75ms",
+    "Type \"echo \"",
+    "Set TypingSpeed 500ms",
+    "Type \"'YEY\"",
+    "Set TypingSpeed 75ms",
+    "Type \"!!!'\"",
+    "Sleep 100ms",
+    "Enter",
+    "Sleep 2s"]`
+- `http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]`
+
+<!--
+- http://terminalgifapi.com/api/v1/gif?commands=[
+    "Type \"echo 'How to run locally w/ Docker'\"\n","Sleep 400ms","Enter","Sleep 200ms",
+    "Type \"echo 'make build-image to build image'\"\n","Sleep 400ms","Enter","Sleep 200ms",
+    "Type \"echo 'make debug-container to start a terminal from inside the container'\"\n","Sleep 400ms","Enter","Sleep 200ms",
+    "Type \"echo 'go run cmd/server/main.go'\"\n","Sleep 400ms","Enter","Sleep 200ms",
+    "Sleep 2s"]
+- http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
+-->
 
 ## How to run
 
@@ -25,31 +51,6 @@ Use this API to present creative ways of your software commands.
 Than, from browser or [Bruno](./zarf/bruno/), open:
 
 - http://localhost:9001/api/v1/gif?commands=["Type \"echo Hi\"","Enter","Sleep 2s"]
-
-<!--
-- http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'The Magic Happens Here'\"","Enter","Sleep 2s"]
-- http://terminalgifapi.com/api/v1/gif?commands=[
-    "Set FontSize 50",
-    "Set TypingSpeed 75ms",
-    "Type \"echo \"",
-    "Set TypingSpeed 500ms",
-    "Type \"'YEY\"",
-    "Set TypingSpeed 75ms",
-    "Type \"!!!'\"",
-    "Sleep 100ms",
-    "Enter",
-    "Sleep 2s"]
-- http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]
-- http://terminalgifapi.com/api/v1/gif?commands=[
-    "Type \"echo 'How to run locally w/ Docker'\"\n","Sleep 400ms","Enter","Sleep 200ms",
-    "Type \"echo 'make build-image to build image'\"\n","Sleep 400ms","Enter","Sleep 200ms",
-    "Type \"echo 'make debug-container to start a terminal from inside the container'\"\n","Sleep 400ms","Enter","Sleep 200ms",
-    "Type \"echo 'go run cmd/server/main.go'\"\n","Sleep 400ms","Enter","Sleep 200ms",
-    "Sleep 2s"]
-- http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
-- http://terminalgifapi.com/api/v1/gif?commands=["Type \"cat README.md\"","Enter","Sleep 2s"]
-- http://terminalgifapi.com/api/v1/gif?commands=["Type \"less README.md\"","Enter","Sleep 2s"]
--->
 
 ## Troubleshooting
 
@@ -87,25 +88,21 @@ Than, from browser or [Bruno](./zarf/bruno/), open:
 - [![Star History Chart](https://api.star-history.com/svg?repos=getumbrel/umbrel&type=Date)](https://star-history.com/#getumbrel/umbrel&Date)
 -->
 
-## Licence
-
-[MIT](./LICENSE)
-
 <!--
 TODO
 
-- requirements to publish idea
-  - create worker to exclude oldest GIFs
-  - create homepage to introduce project
-    - use https://lovable.dev/ for that
+- create homepage to introduce project
+  - use https://lovable.dev/ for that
+- improve readme
+  - codeclimate
+  - sonar
 - improve dockerfile
   - cmds to build image using mac or linux
     - receive OS as arg and select script to install vhs
   - create stage with shared volume and build project
   - copy build to release fase
   - entrypoint to run builded
-- improve readme
-  - https://shields.io/badges, like https://github.com/ClickHouse/ClickHouse/blob/1eecaa0905e1d604231a12ad2088d189c12744c1/README.md?plain=1#L3
+- implement workers to limit GIF processing at same time
 
 - backup https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb and https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_amd64.deb
 
