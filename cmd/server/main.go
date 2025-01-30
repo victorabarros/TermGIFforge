@@ -16,8 +16,9 @@ import (
 )
 
 var (
-	port    = "80"
-	version = "0.1.1"
+	port     = "80"
+	version  = "0.1.1"
+	homePage = "https://victor.barros.engineer/termgif"
 
 	outputCmdFormat = "Output %s"
 	setCmds         = []string{
@@ -58,10 +59,7 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		c.Redirect(
-			http.StatusTemporaryRedirect,
-			"https://victor.barros.engineer/termgif",
-		)
+		c.Redirect(http.StatusTemporaryRedirect, homePage)
 	})
 
 	r.GET("/ping", func(c *gin.Context) {
