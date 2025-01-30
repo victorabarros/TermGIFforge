@@ -17,7 +17,7 @@ import (
 
 var (
 	port    = "80"
-	version = "0.1.0"
+	version = "0.1.1"
 
 	outputCmdFormat = "Output %s"
 	setCmds         = []string{
@@ -60,7 +60,7 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(
 			http.StatusTemporaryRedirect,
-			"https://github.com/victorabarros/TermGIFforge?tab=readme-ov-file#termgifforge-",
+			"https://victor.barros.engineer/termgif",
 		)
 	})
 
@@ -78,6 +78,9 @@ func main() {
 	rpcGroup.GET("/gif", terminalGIF)
 	rpcGroup.GET("/mock", func(c *gin.Context) {
 		c.File("output/error.gif")
+	})
+	rpcGroup.GET("/internal/clean/:id", func(c *gin.Context) {
+		//TODO user files.EraseGIF
 	})
 
 	go files.Cleaner(&details)
