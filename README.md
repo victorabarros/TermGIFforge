@@ -50,7 +50,16 @@ Try:
     "Type \"echo 'go run cmd/server/main.go'\"\n","Sleep 400ms","Enter","Sleep 200ms",
     "Sleep 2s"]
 - http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
--->
+
+- http://localhost:9001/api/v1/gif?commands=[
+  "Set FontSize 25",
+  "Set Height 800",
+  "Set TypingSpeed 80ms",
+  "Hide",
+  "Type \"bash btc_logo.sh\"",
+  "Enter",
+  "Show",
+  "Sleep 5s"] -->
 
 ## How to run
 
@@ -104,11 +113,8 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
 <!--
 TODO
 
-- create homepage to introduce project
-  - use https://lovable.dev/ for that
-- improve readme
-  - codeclimate
-  - sonar
+- codeclimate
+- sonar
 - improve dockerfile
   - cmds to build image using mac or linux
     - receive OS as arg and select script to install vhs
@@ -116,14 +122,16 @@ TODO
   - copy build to release fase
   - entrypoint to run builded
 - implement workers to limit GIF processing at same time
-
+- better readme https://github.com/Azure-Samples/deepseek-azure-javascript?tab=readme-ov-file#deepseek-on-azure---javascript-demos
 - https://star-history.com/blog/playbook-for-more-github-stars
 - write article/post
 - post on
   - ask friends to give star
   - https://x.com/i/communities/1685641800449462272,
   - gopher discord,
-  - gopher slack,
+  - ~gopher slack~ https://gophers.slack.com/archives/C8VFRARPY/p1738249701304709
   - "show HN" (https://news.ycombinator.com/show)...
+  - msg: "If you love the beauty of what charmbracelet have being doing for CLI tools, you'll love this.
+You no longer needs to install VHS to create your GIFs, I just released the TermGIFforge, the VHS as an API!"
 
 -->

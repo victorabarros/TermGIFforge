@@ -77,7 +77,7 @@ func main() {
 	rpcGroup.GET("/mock", func(c *gin.Context) {
 		c.File("output/error.gif")
 	})
-	rpcGroup.GET("/internal/clean/:id", func(c *gin.Context) {
+	rpcGroup.DELETE("/internal-use/gif/:id", func(c *gin.Context) {
 		//TODO user files.EraseGIF
 	})
 
