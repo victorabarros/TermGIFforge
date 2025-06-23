@@ -109,7 +109,7 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
   <br/>
   Made in Brazil
   <br/>
-  <img src="./assets/BrazilFlag.png" height="30px"/>
+  <img src="https://github.com/victorabarros/ura-bot/blob/main/assets/BrazilFlag.png" height="30px"/>
 </p>
 
 <!--
