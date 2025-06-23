@@ -102,6 +102,16 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
 ## References
 
 - https://github.com/charmbracelet/vhs
+
+---
+
+<p align="center">
+  <br/>
+  Made in Brazil
+  <br/>
+  <img src="./assets/BrazilFlag.png" height="30px"/>
+</p>
+
 <!--
 - https://github.com/anuraghazra/github-readme-stats
 - https://github.com/DenverCoder1/github-readme-streak-stats
