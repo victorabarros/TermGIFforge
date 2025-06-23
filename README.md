@@ -90,7 +90,7 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
   <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2060%22,%20%22Type%20\%22I%20am%20happy%20to%20be%20honored%20with%20your%20support!%20S2S2\%22%22,%20%22Sleep%202s%22%20]" height="200px"/>
   <br/>
   <br/>
-  <a href="https://victor.barros.engineer/wallet" target="_blank">
+  <a href="https://victor.barros.engineer/support" target="_blank">
     <img src="https://bitcoin.org/img/icons/logotop.svg?1671880122" height="40px">
   </a>
   <br/>
@@ -113,6 +113,7 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
 <!--
 TODO
 
+- honeybadger https://app.honeybadger.io/projects/130099/install/go
 - codeclimate
 - sonar
 - improve dockerfile
