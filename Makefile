@@ -37,5 +37,9 @@ kill-container:
 	@echo "Killing container ${CONTAINER_NAME}"
 	@docker rm -f ${CONTAINER_NAME}
 
+remove-image:
+	@echo "Removing image ${IMAGE_NAME}"
+	@docker rmi -f ${IMAGE_NAME}
+
 tree:
 	@docker container run --rm -it -v ${PWD}:${PWD} iankoulski/tree '-d ${PWD}' > TREE.md

@@ -36,9 +36,17 @@ EXPOSE 1976
 RUN apt-get -y install ffmpeg chromium bash
 
 # Install VHS
-RUN apt-get install -y wget
-RUN wget https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb
-RUN dpkg -i vhs_0.9.0_arm64.deb
+RUN apt-get install -y wget dpkg-dev
+RUN ARCH=$(dpkg-architecture -qDEB_HOST_ARCH) && \
+    if [ "$ARCH" = "arm64" ]; then \
+        wget https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_arm64.deb && \
+        dpkg -i vhs_0.9.0_arm64.deb; \
+    elif [ "$ARCH" = "amd64" ]; then \
+        wget https://github.com/charmbracelet/vhs/releases/download/v0.9.0/vhs_0.9.0_amd64.deb && \
+        dpkg -i vhs_0.9.0_amd64.deb; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi
 
 # Mimic alpine default color option
 RUN echo 'alias ls="ls --color"' >> ~/.bashrc
