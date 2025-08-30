@@ -19,6 +19,7 @@ var (
 	}
 )
 
+// TODO rename to GIFState
 type GIFDetail struct {
 	Status     GIFStatus
 	LastAccess time.Time

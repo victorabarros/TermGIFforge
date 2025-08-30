@@ -17,7 +17,7 @@ import (
 
 var (
 	port     = "80"
-	version  = "0.1.1"
+	version  = "0.1.2"
 	homePage = "https://victor.barros.engineer/termgif"
 
 	outputCmdFormat = "Output %s"
@@ -28,24 +28,30 @@ var (
 		"Set Height 400",
 	}
 
+	// GIFDetails is a map of GIFs and their statuses
 	details = models.NewGIFDetails()
 )
 
 func init() {
+	// create output directory if it doesn't exist; where GIFs are stored
 	if err := files.CreateOutputDirectory(); err != nil {
 		os.Exit(1)
 	}
 
-	gifs, err := files.ListGIFs()
-	if err != nil {
-		os.Exit(1)
-	}
-	for _, gif := range gifs {
-		name := gif.Name()
-		// remove .gif from name
-		id := name[:len(name)-4]
-		details.SetStatus(id, models.GIFStatuses.Ready)
-	}
+	// TODO move to separate function
+	// load details mapper
+	func() {
+		gifs, err := files.ListGIFs()
+		if err != nil {
+			os.Exit(1)
+		}
+		for _, gif := range gifs {
+			name := gif.Name()
+			// remove .gif from name
+			id := name[:len(name)-4]
+			details.SetStatus(id, models.GIFStatuses.Ready)
+		}
+	}()
 
 	if d, _ := details.Get("error"); d.Status != models.GIFStatuses.Ready {
 		errorGIF()
@@ -73,7 +79,7 @@ func main() {
 	})
 
 	rpcGroup := r.Group("/api/v1")
-	rpcGroup.GET("/gif", terminalGIF)
+	rpcGroup.GET("/gif", createGIFHandler)
 	rpcGroup.GET("/mock", func(c *gin.Context) {
 		c.File("output/error.gif")
 	})
@@ -89,7 +95,7 @@ func main() {
 	}
 }
 
-func terminalGIF(c *gin.Context) {
+func createGIFHandler(c *gin.Context) {
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
