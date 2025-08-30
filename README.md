@@ -140,7 +140,6 @@ TODO
   - entrypoint to run builded
 - implement workers to limit GIF processing at same time
 - better readme https://github.com/Azure-Samples/deepseek-azure-javascript?tab=readme-ov-file#deepseek-on-azure---javascript-demos
-- https://star-history.com/blog/playbook-for-more-github-stars
 - write article/post
 - post on
   - ask friends to give star
