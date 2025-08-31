@@ -107,18 +107,18 @@ func main() {
 
 func createGIFHandler(c *gin.Context) {
 	extras := map[string]interface{}{
-		"clientIP":        c.ClientIP(),
-		"userAgent":       c.GetHeader("User-Agent"),
-		"referer":         c.GetHeader("Referer"),
 		"accept":          c.GetHeader("Accept"),
-		"acceptLanguage":  c.GetHeader("Accept-Language"),
 		"acceptEncoding":  c.GetHeader("Accept-Encoding"),
+		"acceptLanguage":  c.GetHeader("Accept-Language"),
+		"clientIP":        c.ClientIP(),
 		"connection":      c.GetHeader("Connection"),
 		"host":            c.GetHeader("Host"),
 		"origin":          c.GetHeader("Origin"),
+		"referer":         c.GetHeader("Referer"),
+		"userAgent":       c.GetHeader("User-Agent"),
 		"xForwardedFor":   c.GetHeader("X-Forwarded-For"),
-		"xRealIP":         c.GetHeader("X-Real-IP"),
 		"xForwardedProto": c.GetHeader("X-Forwarded-Proto"),
+		"xRealIP":         c.GetHeader("X-Real-IP"),
 	}
 
 	sentry.CaptureEvent(&sentry.Event{
