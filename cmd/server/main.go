@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	"github.com/victorabarros/termgifforge/internal/files"
 	"github.com/victorabarros/termgifforge/internal/gif"
@@ -17,7 +19,7 @@ import (
 
 var (
 	port     = "80"
-	version  = "0.1.2"
+	version  = "0.1.3"
 	homePage = "https://victor.barros.engineer/termgif"
 
 	outputCmdFormat = "Output %s"
@@ -53,16 +55,24 @@ func init() {
 		}
 	}()
 
+	// creating error and invalid GIFs if they don't exist
 	if d, _ := details.Get("error"); d.Status != models.GIFStatuses.Ready {
 		errorGIF()
 	}
 	if d, _ := details.Get("invalid"); d.Status != models.GIFStatuses.Ready {
 		invalidGIF()
 	}
+
+	if err := sentry.Init(sentry.ClientOptions{
+		Dsn: os.Getenv("SENTRY_DSN"),
+	}); err != nil {
+		log.Fatalf("Sentry initialization failed: %v\n", err)
+	}
 }
 
 func main() {
 	r := gin.Default()
+	r.Use(sentrygin.New(sentrygin.Options{}))
 
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, homePage)
@@ -96,6 +106,30 @@ func main() {
 }
 
 func createGIFHandler(c *gin.Context) {
+	sentry.CaptureEvent(&sentry.Event{
+		User: sentry.User{
+			IPAddress: c.ClientIP(),
+		},
+		Environment: os.Getenv("ENVIRONMENT"),
+		Extra: map[string]interface{}{
+			"clientIP":        c.ClientIP(),
+			"userAgent":       c.GetHeader("User-Agent"),
+			"referer":         c.GetHeader("Referer"),
+			"accept":          c.GetHeader("Accept"),
+			"acceptLanguage":  c.GetHeader("Accept-Language"),
+			"acceptEncoding":  c.GetHeader("Accept-Encoding"),
+			"connection":      c.GetHeader("Connection"),
+			"host":            c.GetHeader("Host"),
+			"origin":          c.GetHeader("Origin"),
+			"xForwardedFor":   c.GetHeader("X-Forwarded-For"),
+			"xRealIP":         c.GetHeader("X-Real-IP"),
+			"xForwardedProto": c.GetHeader("X-Forwarded-Proto"),
+		},
+		Level:    sentry.LevelDebug,
+		Message:  "createGIFHandler",
+		Platform: c.GetHeader("User-Agent"),
+	})
+
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {

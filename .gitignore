@@ -28,3 +28,4 @@ go.work.sum
 main
 vendor/
 **/*.gif
+.env.local
