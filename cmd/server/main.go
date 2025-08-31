@@ -106,28 +106,30 @@ func main() {
 }
 
 func createGIFHandler(c *gin.Context) {
+	extras := map[string]interface{}{
+		"clientIP":        c.ClientIP(),
+		"userAgent":       c.GetHeader("User-Agent"),
+		"referer":         c.GetHeader("Referer"),
+		"accept":          c.GetHeader("Accept"),
+		"acceptLanguage":  c.GetHeader("Accept-Language"),
+		"acceptEncoding":  c.GetHeader("Accept-Encoding"),
+		"connection":      c.GetHeader("Connection"),
+		"host":            c.GetHeader("Host"),
+		"origin":          c.GetHeader("Origin"),
+		"xForwardedFor":   c.GetHeader("X-Forwarded-For"),
+		"xRealIP":         c.GetHeader("X-Real-IP"),
+		"xForwardedProto": c.GetHeader("X-Forwarded-Proto"),
+	}
+
 	sentry.CaptureEvent(&sentry.Event{
 		User: sentry.User{
 			IPAddress: c.ClientIP(),
 		},
 		Environment: os.Getenv("ENVIRONMENT"),
-		Extra: map[string]interface{}{
-			"clientIP":        c.ClientIP(),
-			"userAgent":       c.GetHeader("User-Agent"),
-			"referer":         c.GetHeader("Referer"),
-			"accept":          c.GetHeader("Accept"),
-			"acceptLanguage":  c.GetHeader("Accept-Language"),
-			"acceptEncoding":  c.GetHeader("Accept-Encoding"),
-			"connection":      c.GetHeader("Connection"),
-			"host":            c.GetHeader("Host"),
-			"origin":          c.GetHeader("Origin"),
-			"xForwardedFor":   c.GetHeader("X-Forwarded-For"),
-			"xRealIP":         c.GetHeader("X-Real-IP"),
-			"xForwardedProto": c.GetHeader("X-Forwarded-Proto"),
-		},
-		Level:    sentry.LevelDebug,
-		Message:  "createGIFHandler",
-		Platform: c.GetHeader("User-Agent"),
+		Extra:       extras,
+		Level:       sentry.LevelDebug,
+		Message:     "createGIFHandler",
+		Platform:    c.GetHeader("User-Agent"),
 	})
 
 	cmdsInputStr := c.Query("commands")
