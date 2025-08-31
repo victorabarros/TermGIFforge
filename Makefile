@@ -18,7 +18,7 @@ debug-container:
 		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
 		${IMAGE_NAME} bash -c "${COMMAND}"
 
-compile:
+compile: kill-container
 	@echo "Compiling ${APP_NAME} to ./main"
 	@rm -f ./main
 	@docker run --rm \
