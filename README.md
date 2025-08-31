@@ -119,6 +119,31 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
 </p>
 
 <!--
+## how to run in production
+
+```
+# install docker
+curl -fsSL https://raw.githubusercontent.com/victorabarros/victorabarros/master/scripts/install_docker_ubuntu.sh | bash
+
+# install make
+apt install -y make
+
+# clone project
+git clone https://github.com/victorabarros/TermGIFforge.git
+
+cd TermGIFforge
+
+cp .env.example .env.production
+
+# write variables to .env.production
+
+make build-image
+make compile ENV_FILE=.env.production
+make run-app ENV_FILE=.env.production PORT=80
+```
+ -->
+
+<!--
 - https://github.com/anuraghazra/github-readme-stats
 - https://github.com/DenverCoder1/github-readme-streak-stats
 - https://github.com/rahuldkjain/github-profile-readme-generator
