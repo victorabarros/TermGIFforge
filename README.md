@@ -84,7 +84,7 @@ Then, from browser or [Bruno](./zarf/bruno/), open:
 - How to encode the URL to use in the HTML tag?
   - Simply enter your URL to the browser and it'll parse it to you.
 - How to force image (cache) update in README.rst on GitHub?
-  - run `curl -X PURGE {url of cached badge image}` and refresh the page [(reference)](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github).
+  - You have to delete the cache by run `curl -X PURGE {url of cached badge image}` and refresh the page [(reference)](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github).
 
 ## Contributing
 
