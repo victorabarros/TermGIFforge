@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -34,6 +35,8 @@ var (
 	details = models.NewGIFDetails()
 )
 
+type contextKey string
+
 func init() {
 	// create output directory if it doesn't exist; where GIFs are stored
 	if err := files.CreateOutputDirectory(); err != nil {
@@ -64,7 +67,8 @@ func init() {
 	}
 
 	if err := sentry.Init(sentry.ClientOptions{
-		Dsn: os.Getenv("SENTRY_DSN"),
+		Dsn:        os.Getenv("SENTRY_DSN"),
+		EnableLogs: true,
 	}); err != nil {
 		log.Fatalf("Sentry initialization failed: %v\n", err)
 	}
@@ -112,6 +116,7 @@ func createGIFHandler(c *gin.Context) {
 		"acceptLanguage":  c.GetHeader("Accept-Language"),
 		"clientIP":        c.ClientIP(),
 		"connection":      c.GetHeader("Connection"),
+		"environment":     os.Getenv("ENVIRONMENT"),
 		"host":            c.GetHeader("Host"),
 		"origin":          c.GetHeader("Origin"),
 		"referer":         c.GetHeader("Referer"),
@@ -120,6 +125,11 @@ func createGIFHandler(c *gin.Context) {
 		"xForwardedProto": c.GetHeader("X-Forwarded-Proto"),
 		"xRealIP":         c.GetHeader("X-Real-IP"),
 	}
+
+	logger := sentry.NewLogger(c)
+	const extrasContextKey contextKey = "extras"
+	newCtx := context.WithValue(c, extrasContextKey, extras)
+	logger.Info().WithCtx(newCtx).Emit("Create GIF request")
 
 	sentry.CaptureEvent(&sentry.Event{
 		User: sentry.User{
