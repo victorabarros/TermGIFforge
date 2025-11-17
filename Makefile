@@ -21,8 +21,7 @@ debug-container:
 compile: kill-container
 	@echo "Compiling ${APP_NAME} to ./main"
 	@rm -f ./main
-	@docker run --rm \
-		--env-file ${ENV_FILE} --name ${CONTAINER_NAME} \
+	@docker run --rm --name ${CONTAINER_NAME} \
 		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
 		${IMAGE_NAME} bash -c "go build cmd/server/main.go"
 
