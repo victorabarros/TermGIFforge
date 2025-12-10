@@ -2,11 +2,11 @@ package files
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/victorabarros/termgifforge/internal/logs"
 	"github.com/victorabarros/termgifforge/pkg/models"
 )
 
@@ -27,13 +27,13 @@ func CreateOutputDirectory() error {
 			// Create the directory if it doesn't exist
 			perm := os.FileMode(0755)
 			if err := os.Mkdir(dirName, perm); err != nil {
-				log.Printf("Failed to create directory %s: %v\n", dirName, err)
+				logs.Log.Errorf("Failed to create directory %s: %v\n", dirName, err)
 				return err
 			}
 			return nil
 		}
 
-		fmt.Printf("Fail to check if Directory '%s' exists: %v\n", dirName, err)
+		logs.Log.Errorf("Fail to check if Directory '%s' exists: %v\n", dirName, err)
 		return err
 	}
 
@@ -46,7 +46,7 @@ func ListGIFs() ([]os.DirEntry, error) {
 	var gifFiles []os.DirEntry
 	files, err := os.ReadDir(dirName)
 	if err != nil {
-		log.Fatalf("Failed to read directory %s: %v", dirName, err)
+		logs.Log.Fatalf("Failed to read directory %s: %v", dirName, err)
 		return nil, err
 	}
 
@@ -63,7 +63,7 @@ func ListGIFs() ([]os.DirEntry, error) {
 func Cleaner(details *models.GIFDetails) {
 	for {
 		time.Sleep(sleepLapse)
-		log.Println("Init cleaner")
+		logs.Log.Info("Init cleaner")
 		for id := range details.GIF {
 			EraseGIF(id, details)
 		}
@@ -88,9 +88,9 @@ func EraseGIF(id string, details *models.GIFDetails) {
 	// Only remove if last access is older than TTL
 	if d.LastAccess.Before(time.Now().Add(ttl)) {
 		path := fmt.Sprintf("output/%s.gif", id)
-		log.Printf("removing GIF %s \n", path)
+		logs.Log.Infof("removing GIF %s \n", path)
 		if err := os.Remove(path); err != nil {
-			log.Printf("fail to remove '%s': %+2v\n", path, err)
+			logs.Log.Errorf("fail to remove '%s': %+2v\n", path, err)
 			return
 		}
 

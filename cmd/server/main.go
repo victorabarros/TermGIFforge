@@ -1,20 +1,23 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/getsentry/sentry-go"
-	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
+	"github.com/newrelic/go-agent/v3/integrations/logcontext-v2/nrlogrus"
+	nrgin "github.com/newrelic/go-agent/v3/integrations/nrgin"
+	"github.com/newrelic/go-agent/v3/newrelic"
+
+	"github.com/sirupsen/logrus"
 	"github.com/victorabarros/termgifforge/internal/files"
 	"github.com/victorabarros/termgifforge/internal/gif"
 	"github.com/victorabarros/termgifforge/internal/id"
+	"github.com/victorabarros/termgifforge/internal/logs"
 	"github.com/victorabarros/termgifforge/pkg/models"
 )
 
@@ -22,6 +25,7 @@ var (
 	port     = "80"
 	version  = "0.1.3"
 	homePage = "https://victor.barros.engineer/termgif"
+	appName  = "termgifforge"
 
 	outputCmdFormat = "Output %s"
 	setCmds         = []string{
@@ -30,6 +34,9 @@ var (
 		"Set Width 800",
 		"Set Height 400",
 	}
+
+	newRelicApp *newrelic.Application
+	logLevel    = logrus.TraceLevel // TODO move to env
 
 	// GIFDetails is a map of GIFs and their statuses
 	details = models.NewGIFDetails()
@@ -60,23 +67,32 @@ func init() {
 
 	// creating error and invalid GIFs if they don't exist
 	if d, _ := details.Get("error"); d.Status != models.GIFStatuses.Ready {
-		errorGIF()
+		createErrorGIF()
 	}
 	if d, _ := details.Get("invalid"); d.Status != models.GIFStatuses.Ready {
-		invalidGIF()
+		createInvalidGIF()
 	}
 
-	if err := sentry.Init(sentry.ClientOptions{
-		Dsn:        os.Getenv("SENTRY_DSN"),
-		EnableLogs: true,
-	}); err != nil {
-		log.Fatalf("Sentry initialization failed: %v\n", err)
+	newRelicApp, err := newrelic.NewApplication(
+		newrelic.ConfigAppName(appName),
+		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
+		newrelic.ConfigAppLogForwardingEnabled(true),
+	)
+	if err != nil {
+		logrus.Fatalf("NewRelic initialization failed: %v\n", err)
 	}
+
+	logs.InitLog(logLevel, nrlogrus.NewFormatter(newRelicApp, &logrus.TextFormatter{}))
 }
 
 func main() {
 	r := gin.Default()
-	r.Use(sentrygin.New(sentrygin.Options{}))
+	r.Use(nrgin.Middleware(newRelicApp))
+
+	err := newRelicApp.WaitForConnection(10 * time.Second)
+	if nil != err {
+		logs.Log.Panic("Failed to connect application", err)
+	}
 
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, homePage)
@@ -85,7 +101,7 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) {
 		gifs, err := files.ListGIFs()
 		if err != nil {
-			log.Printf("Fail to list GIFs %+2v\n", err)
+			logs.Log.Errorf("Fail to list GIFs %+2v\n", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "GIF in process"})
 			return
 		}
@@ -103,14 +119,14 @@ func main() {
 
 	go files.Cleaner(&details)
 
-	log.Printf("Starting app version %s in port %s", version, port)
+	logs.Log.Infof("Starting app version %s in port %s", version, port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		log.Printf("%+2v/n", err)
+		logs.Log.Errorf("%+2v/n", err)
 	}
 }
 
 func createGIFHandler(c *gin.Context) {
-	extras := map[string]interface{}{
+	extras := logrus.Fields{
 		"accept":          c.GetHeader("Accept"),
 		"acceptEncoding":  c.GetHeader("Accept-Encoding"),
 		"acceptLanguage":  c.GetHeader("Accept-Language"),
@@ -126,26 +142,12 @@ func createGIFHandler(c *gin.Context) {
 		"xRealIP":         c.GetHeader("X-Real-IP"),
 	}
 
-	logger := sentry.NewLogger(c)
-	const extrasContextKey contextKey = "extras"
-	newCtx := context.WithValue(c, extrasContextKey, extras)
-	logger.Info().WithCtx(newCtx).Emit("Create GIF request")
-
-	sentry.CaptureEvent(&sentry.Event{
-		User: sentry.User{
-			IPAddress: c.ClientIP(),
-		},
-		Environment: os.Getenv("ENVIRONMENT"),
-		Extra:       extras,
-		Level:       sentry.LevelDebug,
-		Message:     "createGIFHandler",
-		Platform:    c.GetHeader("User-Agent"),
-	})
+	logs.Log.WithFields(extras).Info("createGIFHandler logrus")
 
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
-		log.Printf("Error trying to serialize object: %+2v\n", err)
+		logs.Log.Errorf("Error trying to serialize object: %+2v\n", err)
 		c.File("output/invalid.gif")
 		return
 	}
@@ -181,25 +183,25 @@ func processGIF(id string, cmds []string) error {
 	details.SetStatus(id, models.GIFStatuses.Processing)
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
-		log.Printf("Error writing to file: %+2v\n", err)
+		logs.Log.Errorf("Error writing to file: %+2v\n", err)
 		details.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 	defer os.Remove(outTapePath)
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
-		log.Printf("Error running command: %+2v\n", err)
+		logs.Log.Errorf("Error running command: %+2v\n", err)
 		details.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 
 	details.SetStatus(id, models.GIFStatuses.Ready)
 
-	log.Printf("GIF Created id %s\n", id)
+	logs.Log.Infof("GIF Created id %s\n", id)
 	return nil
 }
 
-func errorGIF() error {
+func createErrorGIF() error {
 	cmdInput := []string{
 		"Type \"Sorry, it was not possible create your GIF. =/\"",
 		"Sleep 6s",
@@ -216,7 +218,7 @@ func errorGIF() error {
 	return nil
 }
 
-func invalidGIF() error {
+func createInvalidGIF() error {
 	cmdInput := []string{
 		"Type \"Invalid request...\"",
 		"Sleep 6s",
