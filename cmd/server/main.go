@@ -110,6 +110,7 @@ func main() {
 
 	rpcGroup := r.Group("/api/v1")
 	rpcGroup.GET("/gif", createGIFHandler)
+	rpcGroup.GET("/gif/:id", getGIFHandler)
 	rpcGroup.GET("/mock", func(c *gin.Context) {
 		c.File("output/error.gif")
 	})
@@ -121,8 +122,50 @@ func main() {
 
 	logs.Log.Infof("Starting app version %s in port %s", version, port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		logs.Log.Errorf("%+2v", err)
+		logs.Log.Fatalf("Failed to start server: %+2v", err)
 	}
+}
+
+func getGIFHandler(c *gin.Context) {
+	extras := logrus.Fields{
+		"accept":          c.GetHeader("Accept"),
+		"acceptEncoding":  c.GetHeader("Accept-Encoding"),
+		"acceptLanguage":  c.GetHeader("Accept-Language"),
+		"clientIP":        c.ClientIP(),
+		"connection":      c.GetHeader("Connection"),
+		"environment":     os.Getenv("ENVIRONMENT"),
+		"host":            c.GetHeader("Host"),
+		"origin":          c.GetHeader("Origin"),
+		"referer":         c.GetHeader("Referer"),
+		"userAgent":       c.GetHeader("User-Agent"),
+		"xForwardedFor":   c.GetHeader("X-Forwarded-For"),
+		"xForwardedProto": c.GetHeader("X-Forwarded-Proto"),
+		"xRealIP":         c.GetHeader("X-Real-IP"),
+	}
+
+	logs.Log.WithFields(extras).Info("createGIFHandler")
+
+	id := c.Param("id")
+	logs.Log.WithFields(extras).Infof("id: %s", id)
+
+	outGifPath := fmt.Sprintf("output/%s.gif", id)
+	if d, ok := cache.Get(id); ok {
+		if d.Status == models.GIFStatuses.Fail {
+			c.File("output/error.gif")
+			return
+		}
+		if d.Status == models.GIFStatuses.Processing {
+			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
+			return
+		}
+		if d.Status == models.GIFStatuses.Ready {
+			cache.SetLastAccess(id, time.Now())
+			c.File(outGifPath)
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, gin.H{"message": "GIF not found"})
 }
 
 func createGIFHandler(c *gin.Context) {
