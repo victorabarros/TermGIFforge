@@ -14,7 +14,7 @@ func NewUUUIDAsString(input string) string {
 	md5hash := md5.New()
 	_, err := md5hash.Write([]byte(input))
 	if err != nil {
-		logs.Log.Fatalf("%+2v", err)
+		logs.Log.Fatalf("Failed to write MD5 hash: %+2v", err)
 	}
 
 	// convert the hash value to a string
@@ -23,7 +23,7 @@ func NewUUUIDAsString(input string) string {
 	// generate the UUID from the
 	uuid, err := uuid.FromBytes([]byte(md5string[0:16]))
 	if err != nil {
-		logs.Log.Fatalf("%+2v", err)
+		logs.Log.Fatalf("Failed to generate UUID: %+2v", err)
 	}
 
 	return uuid.String()

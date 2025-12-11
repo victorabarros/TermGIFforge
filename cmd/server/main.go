@@ -79,7 +79,7 @@ func init() {
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
 	if err != nil {
-		logrus.Fatalf("NewRelic initialization failed: %v\n", err)
+		logs.Log.Fatalf("NewRelic initialization failed: %+2v", err)
 	}
 
 	logs.InitLog(logLevel, nrlogrus.NewFormatter(newRelicApp, &logrus.TextFormatter{}))
@@ -91,7 +91,7 @@ func main() {
 
 	err := newRelicApp.WaitForConnection(10 * time.Second)
 	if nil != err {
-		logs.Log.Panic("Failed to connect application", err)
+		logs.Log.Fatalf("Failed to connect application %+2v", err)
 	}
 
 	r.GET("/", func(c *gin.Context) {
@@ -101,7 +101,7 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) {
 		gifs, err := files.ListGIFs()
 		if err != nil {
-			logs.Log.Errorf("Fail to list GIFs %+2v\n", err)
+			logs.Log.Errorf("Fail to list GIFs %+2v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "GIF in process"})
 			return
 		}
@@ -121,7 +121,7 @@ func main() {
 
 	logs.Log.Infof("Starting app version %s in port %s", version, port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		logs.Log.Errorf("%+2v/n", err)
+		logs.Log.Errorf("%+2v", err)
 	}
 }
 
@@ -142,12 +142,12 @@ func createGIFHandler(c *gin.Context) {
 		"xRealIP":         c.GetHeader("X-Real-IP"),
 	}
 
-	logs.Log.WithFields(extras).Info("createGIFHandler logrus")
+	logs.Log.WithFields(extras).Info("createGIFHandler")
 
 	cmdsInputStr := c.Query("commands")
 	cmdInput := []string{}
 	if err := json.Unmarshal([]byte(cmdsInputStr), &cmdInput); err != nil {
-		logs.Log.Errorf("Error trying to serialize object: %+2v\n", err)
+		logs.Log.Errorf("Error trying to serialize object: %+2v", err)
 		c.File("output/invalid.gif")
 		return
 	}
@@ -183,21 +183,21 @@ func processGIF(id string, cmds []string) error {
 	details.SetStatus(id, models.GIFStatuses.Processing)
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
-		logs.Log.Errorf("Error writing to file: %+2v\n", err)
+		logs.Log.Errorf("Error writing to file: %+2v", err)
 		details.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 	defer os.Remove(outTapePath)
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
-		logs.Log.Errorf("Error running command: %+2v\n", err)
+		logs.Log.Errorf("Error running command: %+2v", err)
 		details.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 
 	details.SetStatus(id, models.GIFStatuses.Ready)
 
-	logs.Log.Infof("GIF Created id %s\n", id)
+	logs.Log.Infof("GIF Created id %s", id)
 	return nil
 }
 

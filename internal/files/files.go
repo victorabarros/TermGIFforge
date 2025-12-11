@@ -27,13 +27,13 @@ func CreateOutputDirectory() error {
 			// Create the directory if it doesn't exist
 			perm := os.FileMode(0755)
 			if err := os.Mkdir(dirName, perm); err != nil {
-				logs.Log.Errorf("Failed to create directory %s: %v\n", dirName, err)
+				logs.Log.Errorf("Failed to create directory %s: %+2v", dirName, err)
 				return err
 			}
 			return nil
 		}
 
-		logs.Log.Errorf("Fail to check if Directory '%s' exists: %v\n", dirName, err)
+		logs.Log.Errorf("Fail to check if Directory '%s' exists: %+2v", dirName, err)
 		return err
 	}
 
@@ -46,7 +46,7 @@ func ListGIFs() ([]os.DirEntry, error) {
 	var gifFiles []os.DirEntry
 	files, err := os.ReadDir(dirName)
 	if err != nil {
-		logs.Log.Fatalf("Failed to read directory %s: %v", dirName, err)
+		logs.Log.Fatalf("Failed to read directory %s: %+2v", dirName, err)
 		return nil, err
 	}
 
@@ -88,7 +88,7 @@ func EraseGIF(id string, details *models.GIFDetails) {
 	// Only remove if last access is older than TTL
 	if d.LastAccess.Before(time.Now().Add(ttl)) {
 		path := fmt.Sprintf("output/%s.gif", id)
-		logs.Log.Infof("removing GIF %s \n", path)
+		logs.Log.Infof("removing GIF %s", path)
 		if err := os.Remove(path); err != nil {
 			logs.Log.Errorf("fail to remove '%s': %+2v\n", path, err)
 			return
