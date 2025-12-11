@@ -19,7 +19,7 @@ RUN apk add --no-cache \
     font-ubuntu font-ubuntu-mono-nerd \
     font-noto-emoji
 
-FROM golang:1.23.4
+FROM golang:1.24.0
 
 RUN apt-get update
 
