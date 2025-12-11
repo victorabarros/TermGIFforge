@@ -154,6 +154,7 @@ make run-app ENV_FILE=.env.production PORT=80
 <!--
 TODO
 
+- add a POST endpoint to create GIF -> return GIF ID and can be used on the GET
 - honeybadger https://app.honeybadger.io/projects/130099/install/go
 - codeclimate
 - sonar
