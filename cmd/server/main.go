@@ -39,7 +39,7 @@ var (
 	logLevel    = logrus.TraceLevel // TODO move to env
 
 	// GIFDetails is a map of GIFs and their statuses
-	details = models.NewGIFDetails()
+	cache = models.NewGIFDetails()
 )
 
 type contextKey string
@@ -51,7 +51,7 @@ func init() {
 	}
 
 	// TODO move to separate function
-	// load details mapper
+	// load cache mapper
 	func() {
 		gifs, err := files.ListGIFs()
 		if err != nil {
@@ -61,15 +61,15 @@ func init() {
 			name := gif.Name()
 			// remove .gif from name
 			id := name[:len(name)-4]
-			details.SetStatus(id, models.GIFStatuses.Ready)
+			cache.SetStatus(id, models.GIFStatuses.Ready)
 		}
 	}()
 
 	// creating error and invalid GIFs if they don't exist
-	if d, _ := details.Get("error"); d.Status != models.GIFStatuses.Ready {
+	if d, _ := cache.Get("error"); d.Status != models.GIFStatuses.Ready {
 		createErrorGIF()
 	}
-	if d, _ := details.Get("invalid"); d.Status != models.GIFStatuses.Ready {
+	if d, _ := cache.Get("invalid"); d.Status != models.GIFStatuses.Ready {
 		createInvalidGIF()
 	}
 
@@ -117,7 +117,7 @@ func main() {
 		//TODO user files.EraseGIF
 	})
 
-	go files.Cleaner(&details)
+	go files.Cleaner(&cache)
 
 	logs.Log.Infof("Starting app version %s in port %s", version, port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
@@ -154,7 +154,7 @@ func createGIFHandler(c *gin.Context) {
 
 	id := id.NewUUUIDAsString(cmdsInputStr)
 	outGifPath := fmt.Sprintf("output/%s.gif", id)
-	if d, ok := details.Get(id); ok {
+	if d, ok := cache.Get(id); ok {
 		if d.Status == models.GIFStatuses.Fail {
 			c.File("output/error.gif")
 			return
@@ -164,7 +164,7 @@ func createGIFHandler(c *gin.Context) {
 			return
 		}
 		if d.Status == models.GIFStatuses.Ready {
-			details.SetLastAccess(id, time.Now())
+			cache.SetLastAccess(id, time.Now())
 			c.File(outGifPath)
 			return
 		}
@@ -180,22 +180,22 @@ func createGIFHandler(c *gin.Context) {
 
 func processGIF(id string, cmds []string) error {
 	outTapePath := fmt.Sprintf("output/%s.tape", id)
-	details.SetStatus(id, models.GIFStatuses.Processing)
+	cache.SetStatus(id, models.GIFStatuses.Processing)
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		logs.Log.Errorf("Error writing to file: %+2v", err)
-		details.SetStatus(id, models.GIFStatuses.Fail)
+		cache.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 	defer os.Remove(outTapePath)
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		logs.Log.Errorf("Error running command: %+2v", err)
-		details.SetStatus(id, models.GIFStatuses.Fail)
+		cache.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 
-	details.SetStatus(id, models.GIFStatuses.Ready)
+	cache.SetStatus(id, models.GIFStatuses.Ready)
 
 	logs.Log.Infof("GIF Created id %s", id)
 	return nil
