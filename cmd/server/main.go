@@ -42,8 +42,6 @@ var (
 	cache = models.NewGIFDetails()
 )
 
-type contextKey string
-
 func init() {
 	// create output directory if it doesn't exist; where GIFs are stored
 	if err := files.CreateOutputDirectory(); err != nil {
@@ -74,7 +72,7 @@ func init() {
 	}
 
 	newRelicApp, err := newrelic.NewApplication(
-		newrelic.ConfigAppName(appName),
+		newrelic.ConfigAppName(fmt.Sprintf("%s-%s", appName, os.Getenv("ENVIRONMENT"))),
 		newrelic.ConfigLicense(os.Getenv("NEW_RELIC_LICENSE_KEY")),
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
