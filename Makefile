@@ -7,13 +7,13 @@ PORT?=9001
 COMMAND?="bash"
 ENV_FILE?=.env.local
 
-build-image:
+build-image: remove-image
 	@echo "Building ${IMAGE_NAME} image"
 	@docker build --rm -t ${IMAGE_NAME} .
 
-debug-container:
-	@echo "Debug ${APP_NAME} container on the port ${PORT}"
-	@docker run --rm -it -p ${PORT}:80 \
+debug-container: kill-container
+	@echo "Running ${APP_NAME} container on the port ${PORT}"
+	@docker run -it -p ${PORT}:80 \
 		--env-file ${ENV_FILE} --name ${CONTAINER_NAME} \
 		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
 		${IMAGE_NAME} bash -c "${COMMAND}"
@@ -21,16 +21,11 @@ debug-container:
 compile: kill-container
 	@echo "Compiling ${APP_NAME} to ./main"
 	@rm -f ./main
-	@docker run --rm --name ${CONTAINER_NAME} \
-		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
-		${IMAGE_NAME} bash -c "go build cmd/server/main.go"
+	@make debug-container COMMAND="go build cmd/server/main.go"
 
 run-app: kill-container
 	@echo "Running ${APP_NAME} on the port ${PORT}"
-	@docker run --rm -d -p ${PORT}:80 \
-		--env-file ${ENV_FILE} --name ${CONTAINER_NAME} \
-		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
-		${IMAGE_NAME} bash -c "./main"
+	@make debug-container COMMAND="./main"
 
 kill-container:
 	@echo "Killing container ${CONTAINER_NAME}"
