@@ -36,7 +36,7 @@ var (
 	}
 
 	newRelicApp *newrelic.Application
-	logLevel    = logrus.TraceLevel // TODO move to env
+	logLevel    = logrus.InfoLevel // TODO move to env
 
 	// GIFDetails is a map of GIFs and their statuses
 	cache = models.NewGIFDetails()

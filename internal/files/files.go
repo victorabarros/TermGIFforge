@@ -63,7 +63,7 @@ func ListGIFs() ([]os.DirEntry, error) {
 func Cleaner(details *models.GIFDetails) {
 	for {
 		time.Sleep(sleepLapse)
-		logs.Log.Info("Init cleaner")
+		logs.Log.Debug("Init cleaner")
 		for id := range details.GIF {
 			EraseGIF(id, details)
 		}
