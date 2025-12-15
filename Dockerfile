@@ -16,7 +16,7 @@ RUN apk add --no-cache \
     font-liberation font-liberation-mono-nerd \
     font-noto \
     font-roboto-mono \
-    font-ubuntu font-ubuntu-mono-nerd \
+    font-ubuntu-mono-nerd \
     font-noto-emoji
 
 FROM golang:1.24.0
