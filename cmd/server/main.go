@@ -22,8 +22,8 @@ import (
 )
 
 var (
-	port     = "80"
-	version  = "0.1.3"
+	port     = "80"    // TODO move to env
+	version  = "0.2.1" // TODO move to env
 	homePage = "https://victor.barros.engineer/termgif"
 	appName  = "termgifforge"
 
@@ -118,7 +118,7 @@ func main() {
 
 	go files.Cleaner(&cache)
 
-	logs.Log.Infof("Starting app version %s in port %s", version, port)
+	logs.Log.Infof("Starting app version %s in", version)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		logs.Log.Fatalf("Failed to start server: %+2v", err)
 	}
