@@ -27,7 +27,10 @@ compile: kill-container
 
 run-app: kill-container
 	@echo "Running ${APP_NAME} on the port ${PORT}"
-	@make debug-container COMMAND="./main"
+	@docker run -d -p ${PORT}:80 \
+		--env-file ${ENV_FILE} --name ${CONTAINER_NAME} \
+		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
+		${IMAGE_NAME} bash -c "./main"
 
 kill-container:
 	@echo "Killing container ${CONTAINER_NAME}"
