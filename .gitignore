@@ -30,3 +30,4 @@ vendor/
 **/*.gif
 .env.local
 **/*.log
+zarf/automated-tests/coverage.html
