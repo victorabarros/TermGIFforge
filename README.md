@@ -78,7 +78,7 @@ go run cmd/server/main.go
  -->
 
 <p align="center">
-  <img src="http://terminalgifapi.com/api/v1/gif/31363065-3337-3164-6363-393264306130"/>
+  <img src="http://terminalgifapi.com/api/v1/gif/62643236-3530-3762-6262-366563626532"/>
 </p>
 
 Then, from browser or [Bruno](./zarf/bruno/), open:
