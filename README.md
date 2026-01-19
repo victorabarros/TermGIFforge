@@ -6,8 +6,7 @@
 Ideal for tutorials, documentation, and sharing terminal workflows.
 
 <p align="center">
-  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2050%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22echo%20\%22%22,%20%22Set%20TypingSpeed%20500ms%22,%20%22Type%20\%22%27YEY\%22%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22!!!!%27\%22%22,%20%22Sleep%20100ms%22,%20%22Enter%22,%20%22Sleep%202s%22]"/>
-  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%22Type%20\%22echo%20%27The%20Magic%20Happens%20Here%27\%22%22,%22Enter%22,%22Sleep%202s%22]"/>
+  <img src="http://terminalgifapi.com/api/v1/gif/39323864-6331-3838-3761-333566623361"/>
 </p>
 
 Use this API to present creative ways of your software commands.
