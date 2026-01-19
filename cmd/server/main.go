@@ -38,8 +38,8 @@ var (
 	newRelicApp *newrelic.Application
 	logLevel    = logrus.InfoLevel // TODO move to env
 
-	// GIFDetails is a map of GIFs and their statuses
-	cache = models.NewGIFDetails()
+	// gitStates is a map of GIFs and their statuses
+	gitStates = models.NewGIFDetails()
 )
 
 func init() {
@@ -49,7 +49,7 @@ func init() {
 	}
 
 	// TODO move to separate function
-	// load cache mapper
+	// load gitStates mapper
 	func() {
 		gifs, err := files.ListGIFs()
 		if err != nil {
@@ -59,15 +59,15 @@ func init() {
 			name := gif.Name()
 			// remove .gif from name
 			id := name[:len(name)-4]
-			cache.SetStatus(id, models.GIFStatuses.Ready)
+			gitStates.SetStatus(id, models.GIFStatuses.Ready)
 		}
 	}()
 
 	// creating error and invalid GIFs if they don't exist
-	if d, _ := cache.Get("error"); d.Status != models.GIFStatuses.Ready {
+	if d, _ := gitStates.Get("error"); d.Status != models.GIFStatuses.Ready {
 		createErrorGIF()
 	}
-	if d, _ := cache.Get("invalid"); d.Status != models.GIFStatuses.Ready {
+	if d, _ := gitStates.Get("invalid"); d.Status != models.GIFStatuses.Ready {
 		createInvalidGIF()
 	}
 
@@ -108,6 +108,7 @@ func main() {
 
 	rpcGroup := r.Group("/api/v1")
 	rpcGroup.GET("/gif", createGIFHandler)
+	rpcGroup.POST("/gif", createGIFFromRequestBodyHandler)
 	rpcGroup.GET("/gif/:id", getGIFHandler)
 	rpcGroup.GET("/mock", func(c *gin.Context) {
 		c.File("output/error.gif")
@@ -116,7 +117,7 @@ func main() {
 		//TODO user files.EraseGIF
 	})
 
-	go files.Cleaner(&cache)
+	go files.Cleaner(&gitStates)
 
 	logs.Log.Infof("Starting app version %s in", version)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
@@ -147,17 +148,17 @@ func getGIFHandler(c *gin.Context) {
 	logs.Log.WithFields(extras).Infof("id: %s", id)
 
 	outGifPath := fmt.Sprintf("output/%s.gif", id)
-	if d, ok := cache.Get(id); ok {
+	if d, ok := gitStates.Get(id); ok {
 		if d.Status == models.GIFStatuses.Fail {
 			c.File("output/error.gif")
 			return
 		}
 		if d.Status == models.GIFStatuses.Processing {
-			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
+			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process", "gifId": id})
 			return
 		}
 		if d.Status == models.GIFStatuses.Ready {
-			cache.SetLastAccess(id, time.Now())
+			gitStates.SetLastAccess(id, time.Now())
 			c.File(outGifPath)
 			return
 		}
@@ -195,17 +196,17 @@ func createGIFHandler(c *gin.Context) {
 
 	id := id.NewUUUIDAsString(cmdsInputStr)
 	outGifPath := fmt.Sprintf("output/%s.gif", id)
-	if d, ok := cache.Get(id); ok {
+	if d, ok := gitStates.Get(id); ok {
 		if d.Status == models.GIFStatuses.Fail {
 			c.File("output/error.gif")
 			return
 		}
 		if d.Status == models.GIFStatuses.Processing {
-			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
+			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process", "gifId": id})
 			return
 		}
 		if d.Status == models.GIFStatuses.Ready {
-			cache.SetLastAccess(id, time.Now())
+			gitStates.SetLastAccess(id, time.Now())
 			c.File(outGifPath)
 			return
 		}
@@ -214,29 +215,100 @@ func createGIFHandler(c *gin.Context) {
 	cmds := append([]string{fmt.Sprintf(outputCmdFormat, outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	go processGIF(id, cmds)
+	go createGIF(id, cmds)
 
-	c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process"})
+	c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process", "gifId": id})
 }
 
-func processGIF(id string, cmds []string) error {
+func createGIFFromRequestBodyHandler(c *gin.Context) {
+	extras := logrus.Fields{
+		"accept":          c.GetHeader("Accept"),
+		"acceptEncoding":  c.GetHeader("Accept-Encoding"),
+		"acceptLanguage":  c.GetHeader("Accept-Language"),
+		"clientIP":        c.ClientIP(),
+		"connection":      c.GetHeader("Connection"),
+		"environment":     os.Getenv("ENVIRONMENT"),
+		"host":            c.GetHeader("Host"),
+		"origin":          c.GetHeader("Origin"),
+		"referer":         c.GetHeader("Referer"),
+		"userAgent":       c.GetHeader("User-Agent"),
+		"xForwardedFor":   c.GetHeader("X-Forwarded-For"),
+		"xForwardedProto": c.GetHeader("X-Forwarded-Proto"),
+		"xRealIP":         c.GetHeader("X-Real-IP"),
+	}
+
+	logs.Log.WithFields(extras).Info("createGIFFromRequestBodyHandler")
+
+	var requestBody struct {
+		Commands []string `json:"commands"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		logs.Log.Errorf("Error binding JSON body: %+2v", err)
+		c.File("output/invalid.gif")
+		return
+	}
+
+	cmdInput := requestBody.Commands
+	if len(cmdInput) == 0 {
+		logs.Log.Error("Empty commands array")
+		c.File("output/invalid.gif")
+		return
+	}
+
+	// Serialize commands to generate consistent ID
+	cmdsInputStr, err := json.Marshal(cmdInput)
+	if err != nil {
+		logs.Log.Errorf("Error serializing commands: %+2v", err)
+		c.File("output/error.gif")
+		return
+	}
+
+	id := id.NewUUUIDAsString(string(cmdsInputStr))
+	outGifPath := fmt.Sprintf("output/%s.gif", id)
+	if d, ok := gitStates.Get(id); ok {
+		if d.Status == models.GIFStatuses.Fail {
+			c.File("output/error.gif")
+			return
+		}
+		if d.Status == models.GIFStatuses.Processing {
+			c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process", "gifId": id})
+			return
+		}
+		if d.Status == models.GIFStatuses.Ready {
+			gitStates.SetLastAccess(id, time.Now())
+			c.JSON(http.StatusOK, gin.H{"message": "GIF found", "gifId": id})
+			return
+		}
+	}
+
+	cmds := append([]string{fmt.Sprintf(outputCmdFormat, outGifPath)}, setCmds...)
+	cmds = append(cmds, cmdInput...)
+
+	go createGIF(id, cmds)
+
+	c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process", "gifId": id})
+}
+
+// TODO introduce ctx context.Context
+func createGIF(id string, cmds []string) error {
 	outTapePath := fmt.Sprintf("output/%s.tape", id)
-	cache.SetStatus(id, models.GIFStatuses.Processing)
+	gitStates.SetStatus(id, models.GIFStatuses.Processing)
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {
 		logs.Log.Errorf("Error writing to file: %+2v", err)
-		cache.SetStatus(id, models.GIFStatuses.Fail)
+		gitStates.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 	defer os.Remove(outTapePath)
 
 	if err := gif.ExecVHS(outTapePath); err != nil {
 		logs.Log.Errorf("Error running command: %+2v", err)
-		cache.SetStatus(id, models.GIFStatuses.Fail)
+		gitStates.SetStatus(id, models.GIFStatuses.Fail)
 		return err
 	}
 
-	cache.SetStatus(id, models.GIFStatuses.Ready)
+	gitStates.SetStatus(id, models.GIFStatuses.Ready)
 
 	logs.Log.Infof("GIF Created id %s", id)
 	return nil
@@ -254,7 +326,7 @@ func createErrorGIF() error {
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	go processGIF(id, cmds)
+	go createGIF(id, cmds)
 
 	return nil
 }
@@ -271,7 +343,7 @@ func createInvalidGIF() error {
 	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
 	cmds = append(cmds, cmdInput...)
 
-	go processGIF(id, cmds)
+	go createGIF(id, cmds)
 
 	return nil
 }

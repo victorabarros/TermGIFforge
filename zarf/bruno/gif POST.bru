@@ -1,0 +1,24 @@
+meta {
+  name: gif POST
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/gif
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "commands": [
+      "Type \"echo 'Welcome t00 V0HS!'\"",
+      "Enter",
+      "Type \"ls\"",
+      "Sleep 100ms",
+      "Enter",
+      "Sleep 2s"
+    ]
+  }
+}
