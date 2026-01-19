@@ -28,19 +28,25 @@ Use this API to present creative ways of your software commands.
 
 **TermGIFforge** uses the [VHS](https://github.com/charmbracelet/vhs) to generate the GIFs, [here you'll find the command references](https://github.com/charmbracelet/vhs?tab=readme-ov-file#vhs-command-reference) to generate your own GIFs.
 Try:
-- `http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'The Magic Happens Here'\"","Enter","Sleep 2s"]`
-- `http://terminalgifapi.com/api/v1/gif?commands=[
-    "Set FontSize 50",
-    "Set TypingSpeed 75ms",
-    "Type \"echo \"",
-    "Set TypingSpeed 500ms",
-    "Type \"'YEY\"",
-    "Set TypingSpeed 75ms",
-    "Type \"!!!'\"",
-    "Sleep 100ms",
-    "Enter",
-    "Sleep 2s"]`
-- `http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]`
+
+- Having the commands on query param, like:
+  - `http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'The Magic Happens Here'\"","Enter","Sleep 2s"]`
+  - `http://terminalgifapi.com/api/v1/gif?commands=[
+      "Set FontSize 50",
+      "Set TypingSpeed 75ms",
+      "Type \"echo \"",
+      "Set TypingSpeed 500ms",
+      "Type \"'YEY\"",
+      "Set TypingSpeed 75ms",
+      "Type \"!!!'\"",
+      "Sleep 100ms",
+      "Enter",
+      "Sleep 2s"]`
+  - `http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]`
+- Having the commands on the requesst body, like:
+  - `curl -X POST http://terminalgifapi.com/api/v1/gif --header 'content-type: application/json' --data '{"commands": ["Type \"echo '\''Welcome t00 V0HS!'\''\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]}'`
+- Using the GIF id on the route param:
+  - `http://terminalgifapi/api/v1/gif/33613662-3838-3532-3532-313636613838`
 
 <!--
 - http://terminalgifapi.com/api/v1/gif?commands=[
