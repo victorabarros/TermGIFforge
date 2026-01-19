@@ -99,6 +99,7 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
 
 <p>
   <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2060%22,%20%22Type%20\%22I%20am%20happy%20to%20be%20honored%20with%20your%20support!%20S2S2\%22%22,%20%22Sleep%202s%22%20]" height="200px"/>
+  <img src="http://terminalgifapi.com/api/v1/gif/64653134-3737-6639-6439-613330666563" height="200px"/>
   <br/>
   <br/>
   <a href="https://victor.barros.engineer/support" target="_blank">
