@@ -78,7 +78,7 @@ go run cmd/server/main.go
  -->
 
 <p align="center">
-  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Type%20\%22echo%20%27How%20to%20run%20locally%20w/%20Docker%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20%27make%20build-image%20to%20build%20image%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20%27make%20debug-container%20to%20start%20a%20terminal%20from%20inside%20the%20container%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20%27go%20run%20cmd/server/main.go%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Sleep%202s%22]"/>
+  <img src="http://terminalgifapi.com/api/v1/gif/31363065-3337-3164-6363-393264306130"/>
 </p>
 
 Then, from browser or [Bruno](./zarf/bruno/), open:
@@ -160,7 +160,6 @@ make run-app ENV_FILE=.env.production PORT=80
 <!--
 TODO
 
-- add a POST endpoint to create GIF -> return GIF ID and can be used on the GET
 - honeybadger https://app.honeybadger.io/projects/130099/install/go
 - codeclimate
 - sonar
