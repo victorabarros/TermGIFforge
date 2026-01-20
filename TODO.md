@@ -17,6 +17,7 @@
 
 ## prod improvement
 
+- install `vim` to the container
 - better readme https://github.com/Azure-Samples/deepseek-azure-javascript?tab=readme-ov-file#deepseek-on-azure---javascript-demos
 - write article/post
 - post on
