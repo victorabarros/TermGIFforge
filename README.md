@@ -6,8 +6,11 @@
 Ideal for tutorials, documentation, and sharing terminal workflows.
 
 <p align="center">
-  <img src="http://terminalgifapi.com/api/v1/gif/39323864-6331-3838-3761-333566623361"/>
+  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2050%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22echo%20\%22%22,%20%22Set%20TypingSpeed%20500ms%22,%20%22Type%20\%22%27YEY\%22%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22!!!!%27\%22%22,%20%22Sleep%20100ms%22,%20%22Enter%22,%20%22Sleep%202s%22]"/>
 </p>
+
+<!-- curl -fsSL https://raw.githubusercontent.com/victorabarros/victorabarros/master/scripts/btc_logo.sh | bash -->
+
 
 Use this API to present creative ways of your software commands.
 
@@ -56,9 +59,23 @@ Try:
     "Sleep 2s"]
 - http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
 
+http://terminalgifapi.com/api/v1/gif?commands=[
+"Set FontSize 25",
+  "Set Height 900",
+  "Set Width 700",
+"Sleep 1s",
+"Hide",
+"Type \"curl -fsSL https://raw.githubusercontent.com/victorabarros/victorabarros/master/scripts/btc_logo.sh | bash\"",
+"Show",
+"Sleep 1s",
+"Enter",
+"Sleep 10s"
+]
+
 - http://localhost:9001/api/v1/gif?commands=[
   "Set FontSize 25",
-  "Set Height 800",
+  "Set Height 900",
+  "Set Width 700",
   "Set TypingSpeed 80ms",
   "Hide",
   "Type \"bash btc_logo.sh\"",
@@ -77,7 +94,8 @@ go run cmd/server/main.go
  -->
 
 <p align="center">
-  <img src="http://terminalgifapi.com/api/v1/gif/62643236-3530-3762-6262-366563626532"/>
+  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Type%20\%22echo%20How%20to%20run%20locally%20w/%20Docker\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20make%20build-image%20to%20build%20image\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20make%20debug-container%20to%20start%20a%20terminal%20from%20inside%20the%20container\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Type%20\%22echo%20%27go%20run%20cmd/server/main.go%27\%22\n%22,%22Sleep%20400ms%22,%22Enter%22,%22Sleep%20200ms%22,%20%22Sleep%202s%22]"/>
+
 </p>
 
 Then, from browser or [Bruno](./zarf/bruno/), open:
@@ -98,8 +116,7 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
 ## Support
 
 <p>
-  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2060%22,%20%22Type%20\%22I%20am%20happy%20to%20be%20honored%20with%20your%20support!%20S2S2\%22%22,%20%22Sleep%202s%22%20]" height="200px"/>
-  <img src="http://terminalgifapi.com/api/v1/gif/64653134-3737-6639-6439-613330666563" height="200px"/>
+  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2025%22,%20%22Set%20Height%20900%22,%20%22Set%20Width%20700%22,%20%22Sleep%201s%22,%20%22Hide%22,%20%22Type%20\%22curl%20-fsSL%20https://raw.githubusercontent.com/victorabarros/victorabarros/master/scripts/btc_logo.sh%20|%20bash\%22%22,%20%22Show%22,%20%22Sleep%201s%22,%20%22Enter%22,%20%22Sleep%2010s%22%20]" height="600px"/>
   <br/>
   <br/>
   <a href="https://victor.barros.engineer/support" target="_blank">
@@ -109,6 +126,8 @@ Contributions are welcome! Feel free to open issues or fork the repo and submit 
   <a href="https://www.buymeacoffee.com/victorbarros" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="45px">
   </a>
+  <br/>
+  <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2060%22,%20%22Type%20\%22I%20am%20happy%20to%20be%20honored%20with%20your%20support!%20S2S2\%22%22,%20%22Sleep%202s%22%20]" height="200px"/>
 </p>
 
 ## References

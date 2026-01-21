@@ -13,12 +13,22 @@ post {
 body:json {
   {
     "commands": [
-      "Type \"echo 'Welcome t00 V0HS!'\"",
+      "Sleep 1s",
+      "Hide",
+      "Type \"curl -fsSL https://raw.githubusercontent.com/victorabarros/victorabarros/master/scripts/btc_logo.sh | bash\"",
+      "Show",
+      "Sleep 1s",
       "Enter",
-      "Type \"ls\"",
-      "Sleep 100ms",
-      "Enter",
-      "Sleep 2s"
+      "Sleep 10s"
     ]
   }
+}
+
+script:post-response {
+  // Access the response body
+  const response = res.body;
+  
+  // Set environment variables
+  bru.setEnvVar("gifId", response.gifId);
+  
 }
