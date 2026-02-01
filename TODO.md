@@ -17,6 +17,8 @@
 
 ## prod improvement
 
+- store GIF assets on S3
+- create DB to store the commands asked; this way can re-create in case of lost
 - install `vim` to the container
 - better readme https://github.com/Azure-Samples/deepseek-azure-javascript?tab=readme-ov-file#deepseek-on-azure---javascript-demos
 - write article/post

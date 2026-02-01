@@ -23,7 +23,7 @@ import (
 
 var (
 	port     = "80"    // TODO move to env
-	version  = "0.2.1" // TODO move to env
+	version  = "0.2.2" // TODO move to env
 	homePage = "https://victor.barros.engineer/termgif"
 	appName  = "termgifforge"
 
@@ -142,7 +142,7 @@ func getGIFHandler(c *gin.Context) {
 		"xRealIP":         c.GetHeader("X-Real-IP"),
 	}
 
-	logs.Log.WithFields(extras).Info("createGIFHandler")
+	logs.Log.WithFields(extras).Info("getGIFHandler")
 
 	id := c.Param("id")
 	logs.Log.WithFields(extras).Infof("id: %s", id)
@@ -293,6 +293,7 @@ func createGIFFromRequestBodyHandler(c *gin.Context) {
 // TODO introduce ctx context.Context
 func createGIF(id string, cmds []string) error {
 	outTapePath := fmt.Sprintf("output/%s.tape", id)
+	// TODO save ID-cmds to DB
 	gitStates.SetStatus(id, models.GIFStatuses.Processing)
 
 	if err := gif.WriteTape(cmds, outTapePath); err != nil {

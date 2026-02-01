@@ -2,8 +2,10 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/victorabarros/termgifforge)](https://goreportcard.com/report/github.com/victorabarros/termgifforge) ![GitHub License](https://img.shields.io/github/license/victorabarros/TermGIFforge)
 
-**Turn your terminal recordings into captivating GIFs effortlessly.**
-Ideal for tutorials, documentation, and sharing terminal workflows.
+**A hosted micro‑SaaS (HTTP API) to render terminal GIFs on demand.**
+Give it a list of [VHS](https://github.com/charmbracelet/vhs) commands → get back a GIF you can embed in docs, READMEs, or share anywhere.
+
+No library to install. No client SDK required. Just call the endpoint (GET with `commands=[...]` or POST JSON) and use the returned image.
 
 <p align="center">
   <img src="http://terminalgifapi.com/api/v1/gif?commands=[%20%22Set%20FontSize%2050%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22echo%20\%22%22,%20%22Set%20TypingSpeed%20500ms%22,%20%22Type%20\%22%27YEY\%22%22,%20%22Set%20TypingSpeed%2075ms%22,%20%22Type%20\%22!!!!%27\%22%22,%20%22Sleep%20100ms%22,%20%22Enter%22,%20%22Sleep%202s%22]"/>
@@ -12,7 +14,7 @@ Ideal for tutorials, documentation, and sharing terminal workflows.
 <!-- curl -fsSL https://raw.githubusercontent.com/victorabarros/victorabarros/master/scripts/btc_logo.sh | bash -->
 
 
-Use this API to present creative ways of your software commands.
+Use this API to present your CLI workflows as polished, shareable GIFs.
 
 ## Table of Contents
 
@@ -45,7 +47,7 @@ Try:
       "Enter",
       "Sleep 2s"]`
   - `http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]`
-- Having the commands on the requesst body, like:
+- Sometimes using the commands on the query param can be tricky with the encoding. For these cases, you can have the commands on the requesst body, like:
   - `curl -X POST http://terminalgifapi.com/api/v1/gif --header 'content-type: application/json' --data '{"commands": ["Type \"echo '\''Welcome t00 V0HS!'\''\"","Enter","Type \"ls\"","Sleep 100ms","Enter","Sleep 2s"]}'`
 - Using the GIF id on the route param:
   - `http://terminalgifapi/api/v1/gif/33613662-3838-3532-3532-313636613838`
@@ -59,18 +61,9 @@ Try:
     "Sleep 2s"]
 - http://terminalgifapi.com/api/v1/gif?commands=["Type \"echo 'Welcome to VHS!'\"","Sleep 100ms","Enter","Sleep 2s"]
 
-http://terminalgifapi.com/api/v1/gif?commands=[
-"Set FontSize 25",
-  "Set Height 900",
-  "Set Width 700",
-"Sleep 1s",
-"Hide",
-"Type \"curl -fsSL https://raw.githubusercontent.com/victorabarros/victorabarros/master/scripts/btc_logo.sh | bash\"",
-"Show",
-"Sleep 1s",
-"Enter",
-"Sleep 10s"
-]
+http://terminalgifapi.com/api/v1/gif?commands=%5B%22Set%20FontSize%2025%22%2C%22Set%20Height%20900%22%2C%22Set%20Width%20900%22%2C%22Sleep%201s%22%2C%22Type%20%5C%22sleep%2010%20%26%20pid%3D%24%21%3B%20spin%3D%28%27%2F%27%20%27-%27%20%27%5C%27%20%27%7C%27%29%3B%20i%3D0%3B%20while%20kill%20-0%20%24pid%202%3E%2Fdev%2Fnull%3B%20do%20i%3D%24%28%28%20%28i%2B1%29%20%25%204%20%29%29%3B%20printf%20%27%5CrGIF%20in%20progress...%20%24%7Bspin%5B%24i%5D%7D%27%3B%20sleep%200.75%3B%20done%3B%20printf%20%27%5CrDone%21%20%20%20%20%20%20%20%5Cn%27%5C%22%22%2C%22Sleep%201s%22%2C%22Enter%22%2C%22Sleep%2011s%22]
+
+
 
 - http://localhost:9001/api/v1/gif?commands=[
   "Set FontSize 25",
@@ -106,6 +99,7 @@ Then, from browser or [Bruno](./zarf/bruno/), open:
 
 - How to encode the URL to use in the HTML tag?
   - Simply enter your URL to the browser and it'll parse it to you.
+  - If you're using some special characters, like "**#**", use the [urlencoder.org](https://www.urlencoder.org/) for the query params and it should work.
 - How to force image (cache) update in README.rst on GitHub?
   - You have to delete the cache by run `curl -X PURGE {url of cached badge image}` and refresh the page [(reference)](https://stackoverflow.com/questions/26898052/how-to-force-image-cache-update-in-readme-rst-on-github).
 
