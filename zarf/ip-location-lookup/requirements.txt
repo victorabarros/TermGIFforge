@@ -1,1 +1,1 @@
-requests
+# No external deps (stdlib only)
