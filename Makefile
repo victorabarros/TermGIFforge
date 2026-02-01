@@ -44,10 +44,14 @@ tree:
 	@docker container run --rm -it -v ${PWD}:${PWD} iankoulski/tree '-d ${PWD}' > TREE.md
 
 debug-go-container:
-	@echo "Running ${APP_NAME} container to run go commands"
 	@docker run -it --rm --env-file ${ENV_FILE} --name ${CONTAINER_NAME}-go \
 		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
 		${BASE_IMAGE_NAME} bash -c "${COMMAND}"
+
+debug-python-container:
+	@docker run -it --rm --env-file ${ENV_FILE} --name ${CONTAINER_NAME}-python \
+		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
+		python:alpine sh
 
 test:
 	@echo "Initalizing tests"

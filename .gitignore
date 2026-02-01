@@ -31,3 +31,4 @@ vendor/
 .env.local
 **/*.log
 zarf/automated-tests/coverage.html
+.env.production
