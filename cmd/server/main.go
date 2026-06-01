@@ -348,3 +348,20 @@ func createInvalidGIF() error {
 
 	return nil
 }
+
+func createInProgressGIF() error {
+	cmdInput := []string{
+		"Type \"GIF in progress...\"",
+		"Sleep 6s",
+	}
+
+	id := "in_progress"
+	outGifPath := fmt.Sprintf("output/%s.gif", id)
+
+	cmds := append([]string{fmt.Sprintf("Output %s", outGifPath)}, setCmds...)
+	cmds = append(cmds, cmdInput...)
+
+	go createGIF(id, cmds)
+
+	return nil
+}
