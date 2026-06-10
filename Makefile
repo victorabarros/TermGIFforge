@@ -72,6 +72,11 @@ test-log:
 	@echo "Writing ${AUTOMATED_TESTS_PATH}/tests-summ.log"
 	@cat ${AUTOMATED_TESTS_PATH}/tests.log  | grep "coverage: " > ${AUTOMATED_TESTS_PATH}/tests-summ.log
 
+# Infrastructure
+
+connect-vm:
+	@ssh hostinger
+
 # Git
 
 commit-llm-generated:
