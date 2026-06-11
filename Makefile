@@ -79,6 +79,8 @@ connect-vm:
 
 # Git
 
+OLLAMA_MODEL?=qwen2.5:7b
+
 commit-llm-generated commit:
 	git add .
 	@msg_file="$$(mktemp)"; \
