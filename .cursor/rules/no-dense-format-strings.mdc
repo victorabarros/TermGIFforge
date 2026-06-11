@@ -10,15 +10,15 @@ When a `fmt.Sprintf` (or `fmt.Printf`, `log.Printf`, etc.) call contains formatt
 
 ```go
 // ❌ BAD — formatting, conditional, and method chaining all crammed into one call
-logs.Log.Infof("MA200: $%s %s", strconv.FormatInt(int64(math.Round(onchain.SMA200)), 10), func() string { if price >= onchain.SMA200 { return "↑" }; return "↓" }())
+logs.Log.Infof("[gif] status=%s path=%s", func() string { if err != nil { return "fail" }; return "ok" }(), "output/"+id+".gif")
 
 // ✅ GOOD — each concern named; format string reads cleanly
-ma200Price := fmt.Sprintf("$%d", int64(math.Round(onchain.SMA200)))
-ma200Signal := "↓"
-if price >= onchain.SMA200 {
-    ma200Signal = "↑"
+status := "ok"
+if err != nil {
+    status = "fail"
 }
-logs.Log.Infof("MA200: %s %s", ma200Price, ma200Signal)
+gifPath := "output/" + id + ".gif"
+logs.Log.Infof("[gif] status=%s path=%s", status, gifPath)
 ```
 
 This applies to `fmt.Sprintf`, `fmt.Fprintf`, `log.Printf`, `logs.Log.Infof`, string concatenation in `append`, and anywhere else a format call would otherwise exceed one clear idea per argument.
