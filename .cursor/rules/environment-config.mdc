@@ -1,0 +1,48 @@
+---
+description: Environment variable validation and configuration conventions
+globs: cmd/**,internal/**,**/*.go
+alwaysApply: false
+---
+
+# Environment & Config
+
+**Only secrets use env vars.** See `environment-secrets-only.mdc` and `.env.example`.
+
+## Fail-fast pattern
+
+Every required variable must cause the program to exit at startup if missing — never silently default to an empty string.
+
+```go
+// ✅ GOOD — fail at startup in init() or main()
+licenseKey := os.Getenv("NEW_RELIC_LICENSE_KEY")
+if licenseKey == "" {
+    log.Fatal("missing required env var: NEW_RELIC_LICENSE_KEY")
+}
+
+// ❌ BAD — silently broken at runtime; empty string passed to SDK
+licenseKey := os.Getenv("NEW_RELIC_LICENSE_KEY")
+app, _ := newrelic.NewApplication(newrelic.ConfigLicense(licenseKey))
+
+// ❌ BAD — throws too late (on first use, not at startup)
+func getLicenseKey() string {
+    v := os.Getenv("NEW_RELIC_LICENSE_KEY")
+    if v == "" { log.Fatal("...") }
+    return v
+}
+```
+
+## Grouping
+
+Group vars by integration, not alphabetically. Each block maps to one external dependency:
+
+```
+newrelic  → NEW_RELIC_LICENSE_KEY, NEW_RELIC_USER_KEY
+app       → ENVIRONMENT
+```
+
+## Rules
+
+- New **secret** → env var + `.env.example` key (no value) + update `README.md`.
+- New **non-secret** setting → package-level `var` or `const` in the relevant Go file; do not use an env var.
+- Do not use `os.Getenv` with a fallback default for public defaults — define the default directly in code.
+- Do not use `.env` files for secrets in production — use the host's secret manager.

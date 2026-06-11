@@ -1,0 +1,46 @@
+---
+description: Godoc comment on every exported function, type, and method; link third-party APIs
+globs: **/*.go
+alwaysApply: false
+---
+
+# Public symbol documentation
+
+Every **exported** function, type, variable, constant, and method must have a godoc comment directly above it.
+
+## Format
+
+- Start with the symbol name: `// FunctionName ...`
+- **At most 3 lines** of description.
+- **Prefer 2 lines** — one for purpose, one for non-obvious behavior or constraints.
+- No filler ("This function…", "Handles the…"); state *what* and *when* it matters.
+
+## Third-party resources
+
+When code calls an external HTTP API, SDK, or tool, the doc **must** include a link to the official docs.
+
+```go
+// ✅ GOOD — starts with symbol name, states what + constraint + external link
+// ExecVHS runs the VHS CLI against the given .tape file.
+// Returns a non-nil error if VHS exits non-zero; see https://github.com/charmbracelet/vhs
+func ExecVHS(tapePath string) error { ... }
+
+// ✅ GOOD — short, two lines, no third party
+// NewUUUIDAsString returns a deterministic UUID string derived from the input value.
+// Same input always produces the same UUID.
+func NewUUUIDAsString(input string) string { ... }
+
+// ❌ BAD — no godoc on exported function
+func CreateOutputDirectory() error { ... }
+
+// ❌ BAD — comment doesn't start with symbol name; essay style
+// This method is responsible for listing all GIF files in the output directory.
+// It uses os.ReadDir and filters by .gif extension in various cases...
+func ListGIFs() ([]os.DirEntry, error) { ... }
+```
+
+## Scope
+
+- **Required:** exported functions, types (`struct`, `interface`, `type alias`), methods, package-level `var`/`const` blocks.
+- **Optional:** unexported helpers, file-local functions, one-liner route closures.
+- Do not document obvious getters/setters unless the behavior is non-obvious.

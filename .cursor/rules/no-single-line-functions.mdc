@@ -1,0 +1,21 @@
+---
+description: Forbid single-line function and method bodies
+globs: **/*.go
+alwaysApply: false
+---
+
+# No single-line functions
+
+A function or method whose entire body is one statement adds indirection without value. Inline the call at the invocation site instead.
+
+```go
+// ❌ BAD — wrapper that just delegates
+func respondNotFound(c *gin.Context) {
+    c.JSON(http.StatusNotFound, gin.H{"message": "GIF not found"})
+}
+
+// ✅ GOOD — call the statement directly at the call site
+c.JSON(http.StatusNotFound, gin.H{"message": "GIF not found"})
+```
+
+This applies to standalone functions, methods, and function literals alike. If the abstraction is genuinely reusable and non-trivial, give it a multi-statement body (e.g. add a log line, derive a value, or set a header before writing the response).

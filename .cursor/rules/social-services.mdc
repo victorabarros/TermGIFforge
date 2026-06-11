@@ -1,0 +1,44 @@
+---
+description: Go interface conventions — define in consumer, one file per implementation, return error
+globs: **/*.go
+alwaysApply: false
+---
+
+# Go Interface Conventions
+
+## Where to define the interface
+
+Define the interface in the **consumer** package (the package that calls the methods), not in the implementation package. This follows Go's "accept interfaces, return structs" convention and keeps implementations independently replaceable.
+
+```go
+// ✅ GOOD — interface lives in the package that uses it (cmd/)
+// Publisher is the interface satisfied by any social platform client.
+type Publisher interface {
+    PostMessage(ctx context.Context, msg string) (id string, err error)
+}
+
+// ❌ BAD — interface defined alongside the concrete type forces the consumer to import the implementation package
+package xservice
+type IXService interface {
+    PostMessage(msg string) (string, error)
+}
+```
+
+## Method signatures
+
+- Accept a `context.Context` as the first parameter on any network-bound method.
+- Return `(result, error)` — never swallow errors; let the caller decide how to handle them.
+- The result type should be the minimal struct needed (not the full SDK response).
+
+## One file per implementation
+
+Each implementation gets its own file: `internal/<platform>/<platform>.go`. Do not put two platform clients in the same file.
+
+## Adding a new implementation
+
+1. Create `internal/<name>/<name>.go`.
+2. Implement the interface from the consumer package.
+3. Register it where fan-out happens.
+4. Add its env vars to `.env.example` and `README.md`.
+
+No other files should need to change.
