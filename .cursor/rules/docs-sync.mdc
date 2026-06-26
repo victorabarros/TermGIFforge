@@ -1,0 +1,27 @@
+---
+description: Keep docs in sync when changing routes, config, domain behavior, or package interfaces
+alwaysApply: false
+---
+
+# Docs Sync
+
+`README.md` is the source of truth for this project. Any code change that affects the items below must include a corresponding documentation update **in the same commit**.
+
+| You changed… | Update… |
+|---|---|
+| HTTP routes or response codes | `README.md` (API section) |
+| Environment variables | `README.md` + `.env.example` |
+| GIF generation behavior (VHS settings, output format, tape structure) | `README.md` |
+| Package responsibilities or exported interfaces | inline godoc comments |
+| A known anti-pattern is fixed or a new one is discovered | `TODO.md` |
+| A 3rd-party tool or SDK changes (VHS, New Relic, Gin) | `README.md` (dependencies section) |
+
+## Definition of Done checklist
+
+Before declaring a task complete, verify:
+
+- [ ] All affected sections of `README.md` updated
+- [ ] `.env.example` has a key for every new env var (no value)
+- [ ] No new route was added without an entry in the README API table
+- [ ] Every required env var causes `log.Fatal` at startup if missing
+- [ ] Fan-out goroutines use `sync.WaitGroup`, not `errgroup`, for independent operations

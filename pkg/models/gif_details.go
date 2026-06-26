@@ -30,6 +30,22 @@ type GIFDetails struct {
 	Mutex *sync.Mutex
 }
 
+// IDs returns a snapshot of all known GIF ids.
+// It avoids exposing the underlying map to concurrent iteration.
+func (d *GIFDetails) IDs() []string {
+	if d == nil || d.Mutex == nil {
+		return nil
+	}
+	d.Mutex.Lock()
+	defer d.Mutex.Unlock()
+
+	ids := make([]string, 0, len(d.GIF))
+	for id := range d.GIF {
+		ids = append(ids, id)
+	}
+	return ids
+}
+
 func (d *GIFDetails) Get(id string) (GIFDetail, bool) {
 	d.Mutex.Lock()
 	defer d.Mutex.Unlock()

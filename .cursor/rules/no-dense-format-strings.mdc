@@ -1,0 +1,24 @@
+---
+description: Extract complex expressions from fmt.Sprintf calls into named local variables
+globs: **/*.go
+alwaysApply: false
+---
+
+# No Dense Format Strings
+
+When a `fmt.Sprintf` (or `fmt.Printf`, `log.Printf`, etc.) call contains formatted values, conditional expressions, or chained method calls, extract each piece into a named local variable first. The format string itself should read like plain text.
+
+```go
+// ❌ BAD — formatting, conditional, and method chaining all crammed into one call
+logs.Log.Infof("[gif] status=%s path=%s", func() string { if err != nil { return "fail" }; return "ok" }(), "output/"+id+".gif")
+
+// ✅ GOOD — each concern named; format string reads cleanly
+status := "ok"
+if err != nil {
+    status = "fail"
+}
+gifPath := "output/" + id + ".gif"
+logs.Log.Infof("[gif] status=%s path=%s", status, gifPath)
+```
+
+This applies to `fmt.Sprintf`, `fmt.Fprintf`, `log.Printf`, `logs.Log.Infof`, string concatenation in `append`, and anywhere else a format call would otherwise exceed one clear idea per argument.

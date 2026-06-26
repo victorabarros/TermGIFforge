@@ -1,0 +1,46 @@
+---
+description: API route and handler conventions for TermGIFforge
+globs: cmd/**/*.go
+alwaysApply: false
+---
+
+# API Contract
+
+The canonical route list lives in `README.md`. Do not add, rename, or remove routes without updating that file first.
+
+## Routes
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/` | None | Redirect to homepage |
+| GET | `/ping` | None | Health check; returns GIF count and version |
+| GET | `/api/v1/gif` | None | Create GIF from `?commands=` query param (JSON array) |
+| POST | `/api/v1/gif` | None | Create GIF from JSON request body `{ "commands": [...] }` |
+| GET | `/api/v1/gif/:id` | None | Serve GIF file or return processing status |
+| GET | `/api/v1/mock` | None | Serve the error GIF (testing/debug) |
+| DELETE | `/api/v1/internal-use/gif/:id` | None | Delete a GIF by ID (internal use only) |
+
+## Handler responsibilities
+
+Handlers in `cmd/server/main.go` must:
+
+1. Parse and validate input (query params or request body).
+2. Derive a deterministic GIF ID from the input via `id.NewUUUIDAsString`.
+3. Check/update state in `gitStates` (`pkg/models.GIFDetails`).
+4. Dispatch async work via `go createGIF(...)` when the GIF does not yet exist.
+5. Respond with the correct status code.
+
+Handlers must **not** contain VHS tape logic, file path construction scattered across the handler, or direct `exec.Command` calls — those belong in `internal/gif` and `internal/files`.
+
+## Response codes
+
+- `200` — GIF ready; file served
+- `202` — GIF still generating: `{ "message": "GIF in process", "gifId": "<id>" }`
+- `204` — legitimate empty result (reserved for future use)
+- `302` — redirect (homepage route)
+- `400` — bad input (invalid JSON, empty commands) → serve `output/invalid.gif`
+- `404` — GIF ID not found: `{ "message": "GIF not found" }`
+- `500` — unexpected internal error
+- `503` — upstream tool unavailable (VHS failure): `{ "error": "...", "integration": "vhs" }`
+
+See `.cursor/rules/controller-errors.mdc`. Do not hide integration errors as `200` or silent fallbacks.

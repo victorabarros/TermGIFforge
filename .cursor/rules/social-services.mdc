@@ -1,0 +1,44 @@
+---
+description: Go interface conventions — define in consumer, one file per implementation, return error
+globs: **/*.go
+alwaysApply: false
+---
+
+# Go Interface Conventions
+
+## Where to define the interface
+
+Define the interface in the **consumer** package (the package that calls the methods), not in the implementation package. This follows Go's "accept interfaces, return structs" convention and keeps implementations independently replaceable.
+
+```go
+// ✅ GOOD — interface lives in the package that uses it (cmd/)
+// GIFGenerator is the interface satisfied by any GIF creation backend.
+type GIFGenerator interface {
+    Generate(ctx context.Context, id string, cmds []string) error
+}
+
+// ❌ BAD — interface defined alongside the concrete type forces the consumer to import the implementation package
+package vhsbackend
+type IGIFGenerator interface {
+    Generate(id string, cmds []string) error
+}
+```
+
+## Method signatures
+
+- Accept a `context.Context` as the first parameter on any network-bound or long-running method.
+- Return `(result, error)` — never swallow errors; let the caller decide how to handle them.
+- The result type should be the minimal struct needed (not the full SDK response).
+
+## One file per implementation
+
+Each implementation gets its own file: `internal/<name>/<name>.go`. Do not put two implementations in the same file.
+
+## Adding a new implementation
+
+1. Create `internal/<name>/<name>.go`.
+2. Implement the interface defined in the consumer package.
+3. Wire it in at the call site.
+4. Add any required env vars to `.env.example` and `README.md`.
+
+No other files should need to change.

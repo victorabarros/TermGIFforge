@@ -1,0 +1,25 @@
+---
+description: Prefer named func declarations over var-assigned closures for package-level helpers
+globs: **/*.go
+alwaysApply: false
+---
+
+# Use Named Function Declarations for Package-Level Helpers
+
+Prefer `func` declarations over `var`-assigned function literals for package-level helper functions.
+
+```go
+// ❌ BAD
+var buildTapePath = func(id string) string {
+    return "output/" + id + ".tape"
+}
+
+// ✅ GOOD
+func buildTapePath(id string) string {
+    return "output/" + id + ".tape"
+}
+```
+
+Named `func` declarations are idiomatic Go, show up in stack traces with their real name, are callable before their declaration in the file, and communicate intent more clearly than a `var` holding an anonymous function.
+
+This does not apply to closures passed as arguments, returned from functions, or registered as Gin handlers inline.

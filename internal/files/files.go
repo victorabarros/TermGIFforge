@@ -89,6 +89,7 @@ func EraseGIF(id string, details *models.GIFDetails) {
 	if d.LastAccess.Before(time.Now().Add(ttl)) {
 		path := fmt.Sprintf("output/%s.gif", id)
 		logs.Log.Infof("removing GIF %s", path)
+		// TODO before removing, upload to S3
 		if err := os.Remove(path); err != nil {
 			logs.Log.Errorf("fail to remove '%s': %+2v\n", path, err)
 			return

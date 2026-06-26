@@ -1,0 +1,73 @@
+---
+description: Gin handlers must surface integration failures with correct HTTP status, logs, and client errors
+globs: cmd/**,internal/**
+alwaysApply: false
+---
+
+# Handler error handling
+
+Handlers orchestrate integrations; they must **not** swallow upstream failures as success or silent fallbacks.
+
+## Status codes
+
+| Situation | Status | Client body |
+|-----------|--------|-------------|
+| Success | `200` | Normal payload |
+| GIF still generating | `202` | `{ "message": "GIF in process", "gifId": "<id>" }` |
+| Legitimate empty result | `204` | Empty body |
+| GIF not found | `404` | `{ "message": "GIF not found" }` |
+| Upstream tool failure (VHS, file I/O) | `503` | `{ "error": "...", "integration": "vhs" }` |
+| Unexpected internal error | `500` | `{ "error": "...", "integration": "..." }` |
+
+## Logging
+
+- Use `logs.Log.Errorf` for integration failures. Include a route prefix tag: `[gif]`, `[ping]`.
+- Log the underlying error value, not a generic message.
+- Use `logs.Log.Warnf` only for expected soft cases (e.g. GIF still processing on first poll).
+
+## Do not
+
+```go
+// ❌ BAD — VHS failure hidden; caller never knows
+if err := gif.ExecVHS(tapePath); err != nil {
+    return
+}
+
+// ❌ BAD — error swallowed, client gets 200
+go createGIF(id, cmds)
+c.JSON(http.StatusOK, gin.H{"message": "done"})
+
+// ❌ BAD — all paths return same status regardless of cause
+c.JSON(http.StatusInternalServerError, gin.H{"message": "error"})
+```
+
+## Do
+
+```go
+// ✅ GOOD — distinguish status from in-flight vs not found
+if d, ok := gitStates.Get(id); ok {
+    if d.Status == models.GIFStatuses.Processing {
+        c.JSON(http.StatusAccepted, gin.H{"message": "GIF in process", "gifId": id})
+        return
+    }
+    if d.Status == models.GIFStatuses.Fail {
+        c.File("output/error.gif")
+        return
+    }
+}
+c.JSON(http.StatusNotFound, gin.H{"message": "GIF not found"})
+
+// ✅ GOOD — upstream failure surfaced with integration label
+if err := gif.ExecVHS(tapePath); err != nil {
+    logs.Log.Errorf("[gif] VHS execution failed: %+v", err)
+    c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error(), "integration": "vhs"})
+    return
+}
+```
+
+## Scope
+
+- **Invalid input** (bad JSON, empty commands) → serve `output/invalid.gif` directly.
+- **Internal tool failures** (VHS, file I/O) → `503` with `integration` field.
+- **State transitions** (processing, fail, ready) → handled by the state machine in `pkg/models`.
+- Update `README.md` when response codes or error bodies change.

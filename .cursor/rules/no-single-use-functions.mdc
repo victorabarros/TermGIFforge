@@ -1,0 +1,29 @@
+---
+description: Do not extract functions that are called in only one place
+globs: **/*.go
+alwaysApply: false
+---
+
+# No Single-Use Function Extractions
+
+Do not extract a helper function whose only purpose is to be called once. It adds indirection without value. Inline the logic at the call site instead.
+
+```go
+// ❌ BAD — buildTapePath is called exactly once; the abstraction is pointless
+func buildTapePath(id string) string {
+    return "output/" + id + ".tape"
+}
+
+func createGIF(id string, cmds []string) error {
+    tapePath := buildTapePath(id)
+    return gif.ExecVHS(tapePath)
+}
+
+// ✅ GOOD — logic lives directly where it is used
+func createGIF(id string, cmds []string) error {
+    tapePath := "output/" + id + ".tape"
+    return gif.ExecVHS(tapePath)
+}
+```
+
+A function is worth extracting only when it is called from **two or more** distinct call sites, or when it has a meaningful name that replaces a non-obvious comment.

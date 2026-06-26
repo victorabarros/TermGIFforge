@@ -1,0 +1,35 @@
+---
+description: internal/ packages must not contain business rules or domain knowledge
+globs: internal/**/*.go
+alwaysApply: false
+---
+
+# No Business Rules in the internal/ Layer
+
+Packages under `internal/` (`gif`, `files`, `id`, `logs`) are thin utilities. They must not contain:
+
+- Domain-specific prompts, commands, or data shaping
+- Knowledge of what a "terminal GIF" means to the product
+- Hardcoded GIF dimensions, font sizes, or VHS tape content
+- Functions named after product concepts (e.g. `CreateTerminalRecording`, `BuildDemoTape`)
+
+Instead, expose generic, parameterized functions and let the **`cmd/` layer** supply the business logic.
+
+```go
+// ❌ BAD — internal/gif knows about the product's window style and font
+func CreateTerminalGIF(id string, cmds []string) error {
+    tape := "Set WindowBar Colorful\nSet FontSize 12\n"
+    for _, cmd := range cmds {
+        tape += "Type " + cmd + "\n"
+    }
+    return execVHS(tape)
+}
+
+// ✅ GOOD — internal/gif is a pure pass-through; caller owns the tape content
+func ExecVHS(tapePath string) error {
+    cmd := exec.Command("vhs", tapePath)
+    return cmd.Run()
+}
+```
+
+The same rule applies to file-naming schemes, output paths, and any other value that encodes product intent.

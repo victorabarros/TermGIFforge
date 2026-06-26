@@ -1,0 +1,17 @@
+---
+description: Run make test after every agent code change to verify tests pass inside the container.
+alwaysApply: true
+---
+
+# Run tests after every change
+
+After making any code change, always run the test suite inside Docker before declaring the task complete:
+
+```bash
+make test
+```
+
+- If it exits 0 — the change is good, proceed.
+- If it exits non-zero — fix the failures before finishing. Do not leave the task in a broken state.
+
+This applies to every edit: source files, test files, config files, or the Dockerfile itself.
