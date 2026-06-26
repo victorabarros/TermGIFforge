@@ -27,8 +27,7 @@ body:json {
 script:post-response {
   // Access the response body
   const response = res.body;
-  
+
   // Set environment variables
   bru.setEnvVar("gifId", response.gifId);
-  
 }
