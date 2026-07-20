@@ -9,9 +9,9 @@ ENV_FILE?=.env.local
 BASE_IMAGE_NAME=golang:1.24.0
 AUTOMATED_TESTS_PATH=zarf/automated-tests
 
-build-image: remove-image
-	@echo "Building ${IMAGE_NAME} image"
-	@docker build --rm -t ${IMAGE_NAME} .
+kill-container:
+	@echo "Killing container ${CONTAINER_NAME}"
+	@docker rm -f ${CONTAINER_NAME}
 
 debug-container: kill-container
 	@echo "Running ${APP_NAME} container on the port ${PORT}"
@@ -19,6 +19,10 @@ debug-container: kill-container
 		--env-file ${ENV_FILE} --name ${CONTAINER_NAME} \
 		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
 		${IMAGE_NAME} bash -c "${COMMAND}"
+
+build-image: remove-image
+	@echo "Building ${IMAGE_NAME} image"
+	@docker build --rm -t ${IMAGE_NAME} .
 
 compile: kill-container
 	@echo "Compiling ${APP_NAME} to ./main"
@@ -31,10 +35,6 @@ run-app: kill-container
 		--env-file ${ENV_FILE} --name ${CONTAINER_NAME} \
 		-v ${PWD}:${WORK_DIR} -w ${WORK_DIR} \
 		${IMAGE_NAME} bash -c "./main"
-
-kill-container:
-	@echo "Killing container ${CONTAINER_NAME}"
-	@docker rm -f ${CONTAINER_NAME}
 
 remove-image:
 	@echo "Removing image ${IMAGE_NAME}"
